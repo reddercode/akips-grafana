@@ -1,0 +1,32 @@
+{
+	"type": "datasource",
+	"id": "akips-datasource",
+	"name": "AKiPS Data Source",
+	"metrics": true,
+	"annotations": true,
+	"backend": true,
+	"alerting": true,
+	"executable": "akips-plugin",
+	"info": {
+		"description": "Simple Data Source",
+		"author": {
+			"name": "ECAD Labs"
+		},
+		"keywords": ["akips"],
+		"logos": {
+			"small": "img/logo.svg",
+			"large": "img/logo.svg"
+		},
+		"links": [
+			{ "name": "Website", "url": "https://github.com/grafana/simple-datasource" },
+			{ "name": "License", "url": "https://github.com/grafana/simple-datasource/blob/master/LICENSE" }
+		],
+		"screenshots": [],
+		"version": "%VERSION%",
+		"updated": "%TODAY%"
+	},
+	"dependencies": {
+		"grafanaVersion": "6.5.x",
+		"plugins": []
+	}
+}
