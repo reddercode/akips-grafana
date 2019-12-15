@@ -14,3 +14,7 @@ export interface TSDBRequest {
   from?: string;
   to?: string;
 }
+
+export interface AKIPSSecureJSONData {
+  password?: string;
+}

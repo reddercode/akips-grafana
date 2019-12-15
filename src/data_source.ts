@@ -22,13 +22,22 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
       refId: 'test',
     };
 
-    const ret = await this.backendSrv.datasourceRequest({
-      data: { queries: [q] } as TSDBRequest,
-      method: 'POST',
-      url: '/api/tsdb/query',
-    });
-
-    console.log(ret);
+    try {
+      await this.backendSrv.datasourceRequest({
+        data: { queries: [q] } as TSDBRequest,
+        method: 'POST',
+        url: '/api/tsdb/query',
+      });
+      return {
+        status: 'success',
+        message: 'Success',
+      };
+    } catch (err) {
+      return {
+        status: 'error',
+        message: err.data.message,
+      };
+    }
   }
 
   async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
