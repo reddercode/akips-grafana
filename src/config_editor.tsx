@@ -9,9 +9,7 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
     const { options, onOptionsChange } = this.props;
     const { secureJsonFields } = options;
     const secureJsonData = (options.secureJsonData || {}) as AKIPSSecureJSONData;
-
     const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(options.url);
-
     const defaultUrl = 'http://localhost:9090';
 
     const notValidStyle = css`

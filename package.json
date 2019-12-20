@@ -14,6 +14,7 @@
 		"@grafana/data": "next",
 		"@grafana/toolkit": "next",
 		"@grafana/ui": "next",
-		"@types/lodash": "latest"
+		"@types/lodash": "latest",
+		"@types/prismjs": "^1.16.0"
 	}
 }

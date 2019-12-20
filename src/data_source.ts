@@ -5,9 +5,8 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  MetricFindValue,
 } from '@grafana/data';
-import { TSDBQuery, TSDBRequest } from './types';
+import { TSDBQuery, TSDBRequest, Entity } from './types';
 
 export class DataSource extends DataSourceApi<TSDBQuery> {
   /** @ngInject */
@@ -41,14 +40,17 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
+    console.log('query', request);
     return new Promise<DataQueryResponse>(res => res({} as DataQueryResponse));
   }
 
   async annotationQuery(request: AnnotationQueryRequest<TSDBQuery>): Promise<AnnotationEvent[]> {
+    console.log('annotationQuery', request);
     return new Promise<AnnotationEvent[]>(res => res([]));
   }
 
-  async metricFindQuery(query: string): Promise<MetricFindValue[]> {
-    return new Promise<MetricFindValue[]>(res => res([]));
+  async metricFindQuery(request: string): Promise<Entity[]> {
+    console.log('metricFindQuery', request);
+    return new Promise<Entity[]>(res => res([]));
   }
 }
