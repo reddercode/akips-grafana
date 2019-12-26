@@ -1,6 +1,6 @@
 import React, { PureComponent, ChangeEvent } from 'react';
 import { css, cx } from 'emotion';
-import { FormField, Input, SecretFormField } from '@grafana/ui';
+import { FormField, Input, SecretFormField, useTheme } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { AKIPSSecureJSONData } from './types';
 
@@ -11,9 +11,9 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
     const secureJsonData = (options.secureJsonData || {}) as AKIPSSecureJSONData;
     const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(options.url);
     const defaultUrl = 'http://localhost:9090';
-
+    const theme = useTheme();
     const notValidStyle = css`
-      box-shadow: inset 0 0px 5px red;
+      box-shadow: inset 0 0px 5px ${theme.colors.red};
     `;
 
     const inputStyle = cx({ [`width-20`]: true, [notValidStyle]: !isValidUrl });

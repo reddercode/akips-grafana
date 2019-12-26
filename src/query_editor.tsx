@@ -41,7 +41,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
     const { query, onChange, onRunQuery } = this.props;
     if (onChange) {
-      const q: TSDBQuery = { ...query, cmd: value };
+      const q: TSDBQuery = { ...query, query: value };
       onChange(q);
       if (override && onRunQuery) {
         onRunQuery();
@@ -51,7 +51,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
   render() {
     const { query } = this.props;
-    const cmd = query.cmd || null;
+    const cmd = query.query || null;
     return (
       <div className="gf-form">
         <QueryField
