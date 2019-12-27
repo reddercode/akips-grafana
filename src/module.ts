@@ -1,5 +1,5 @@
 import { DataSourcePlugin } from '@grafana/data';
-import { DataSource } from './data_source';
+import { DataSource } from './datasource';
 import { QueryEditor } from './query_editor';
 import { ConfigEditor } from './config_editor';
 import { TSDBQuery } from './types';

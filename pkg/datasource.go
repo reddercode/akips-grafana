@@ -92,7 +92,7 @@ func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context, req *datasource.
 
 func (ds *AKIPSDatasource) queryMetricFind(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
 	// Mock
-	if strings.Contains(data.Query, "device") {
+	if strings.HasPrefix(data.Query, "mget device") {
 		return &datasource.QueryResult{
 			Tables: []*datasource.Table{
 				&datasource.Table{
