@@ -6,6 +6,7 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   ScopedVars,
+  TIME_FORMAT,
 } from '@grafana/data';
 import { TSDBQuery, TSDBRequest, MetricValue, QueryResults } from './types';
 
@@ -43,11 +44,11 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
     const intervalSec = Math.floor(request.intervalMs / 1000);
     const fromSec = request.range.from.unix();
+    const fromFmt = request.range.from.format(TIME_FORMAT);
     const toSec = request.range.to.unix();
+    const toFmt = request.range.to.format(TIME_FORMAT);
 
     const localVars: ScopedVars = {
-      ...request.scopedVars,
-
       __interval_s: {
         text: String(intervalSec),
         value: intervalSec,
@@ -56,6 +57,14 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
         text: String(fromSec),
         value: fromSec,
       },
+      __from_datetime: {
+        text: fromFmt,
+        value: fromFmt,
+      },
+      __to_datetime: {
+        text: toFmt,
+        value: toFmt,
+      },
       __to_s: {
         text: String(toSec),
         value: toSec,
@@ -63,7 +72,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
     };
 
     for (const t of request.targets) {
-      t.query = this.templateSrv.replace(t.rawQuery, localVars);
+      t.query = this.templateSrv.replace(t.rawQuery, { ...request.scopedVars, ...localVars });
     }
 
     console.log('query', request);

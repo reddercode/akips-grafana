@@ -52,7 +52,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
   async updateInterfaces(dev: string) {
     const { datasource } = this.props;
-    const result = (await datasource.metricFindQuery(`mget interface ${dev} *`)).map<SelectableValue<string>>(value => ({
+    const result = (await datasource.metricFindQuery(`mget interface "${dev}" *`)).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
@@ -92,7 +92,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     const { selectedDevice, selectedInterface } = this.state;
     const dev = selectedDevice?.value || 'SELECT_DEVICE';
     const iface = selectedInterface?.value || 'SELECT_INTERFACE';
-    return `series interval avg $\{__interval_s\} time from $\{__from_s\} to $\{__to_s\} counter "${dev}" "${iface}" /InOctets|OutOctets/`;
+    return `series interval avg $\{__interval_s\} time "from $\{__from_s\} to $\{__to_s\}" counter "${dev}" "${iface}" /InOctets|OutOctets/`;
   }
 
   render() {
