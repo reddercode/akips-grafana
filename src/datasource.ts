@@ -5,12 +5,13 @@ import {
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
+  ScopedVars,
 } from '@grafana/data';
 import { TSDBQuery, TSDBRequest, MetricValue, QueryResults } from './types';
 
 export class DataSource extends DataSourceApi<TSDBQuery> {
   /** @ngInject */
-  constructor(instanceSettings: DataSourceInstanceSettings, private backendSrv: any) {
+  constructor(instanceSettings: DataSourceInstanceSettings, private backendSrv: any, private templateSrv: any) {
     super(instanceSettings);
   }
 
@@ -40,7 +41,34 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
+    const intervalSec = Math.floor(request.intervalMs / 1000);
+    const fromSec = request.range.from.unix();
+    const toSec = request.range.to.unix();
+
+    const localVars: ScopedVars = {
+      ...request.scopedVars,
+
+      __interval_s: {
+        text: String(intervalSec),
+        value: intervalSec,
+      },
+      __from_s: {
+        text: String(fromSec),
+        value: fromSec,
+      },
+      __to_s: {
+        text: String(toSec),
+        value: toSec,
+      },
+    };
+
+    for (const t of request.targets) {
+      t.query = this.templateSrv.replace(t.rawQuery, localVars);
+    }
+
     console.log('query', request);
+    console.log('tpl', this.templateSrv);
+
     return new Promise<DataQueryResponse>(res => res({} as DataQueryResponse));
   }
 
@@ -50,13 +78,16 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   async metricFindQuery(request: string): Promise<MetricValue[]> {
-    console.log('metricFindQuery', request);
+    const r = this.templateSrv.replace(request, {});
+
+    console.log('metricFindQuery', request, r);
 
     const q: TSDBQuery = {
       datasourceId: this.id,
       type: 'metricFindQuery',
       refId: 'metricFindQuery',
-      query: request,
+      rawQuery: request,
+      query: r,
     };
 
     const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({

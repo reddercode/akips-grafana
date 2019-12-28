@@ -5,6 +5,7 @@ type TSDBQueryType = 'testDatasource' | 'annotationQuery' | 'metricFindQuery' | 
 export interface TSDBQuery extends DataQuery {
   type: TSDBQueryType;
   datasourceId: number;
+  rawQuery?: string; // keep raw query just for convenience --eugene
   query?: string;
 }
 

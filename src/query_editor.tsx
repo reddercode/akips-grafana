@@ -60,11 +60,9 @@ export class QueryEditor extends React.PureComponent<Props, State> {
   }
 
   onChangeQuery = (value: string, override?: boolean) => {
-    console.log('onChangeQuery', value, override);
-
     const { query, onChange, onRunQuery } = this.props;
     if (onChange) {
-      const q: TSDBQuery = { ...query, query: value };
+      const q: TSDBQuery = { ...query, rawQuery: value };
       onChange(q);
       if (override && onRunQuery) {
         onRunQuery();
@@ -73,23 +71,33 @@ export class QueryEditor extends React.PureComponent<Props, State> {
   };
 
   onChangeDevice = (option: SelectableValue<string>) => {
-    this.setState({
-      selectedDevice: option,
-      selectedInterface: null,
-      interfaces: null,
-    });
+    this.setState(
+      {
+        selectedDevice: option,
+        selectedInterface: null,
+        interfaces: null,
+      },
+      () => this.onChangeQuery(this.formatDefaultQuery())
+    );
     if (option.value !== undefined) {
       this.updateInterfaces(option.value);
     }
   };
 
   onChangeInterface = (option: SelectableValue<string>) => {
-    this.setState({ selectedInterface: option });
+    this.setState({ selectedInterface: option }, () => this.onChangeQuery(this.formatDefaultQuery()));
   };
+
+  formatDefaultQuery(): string {
+    const { selectedDevice, selectedInterface } = this.state;
+    const dev = selectedDevice?.value || 'SELECT_DEVICE';
+    const iface = selectedInterface?.value || 'SELECT_INTERFACE';
+    return `series interval avg $\{__interval_s\} time from $\{__from_s\} to $\{__to_s\} counter "${dev}" "${iface}" /InOctets|OutOctets/`;
+  }
 
   render() {
     const { query } = this.props;
-    const cmd = query.query || null;
+    const rawQuery = query.rawQuery || this.formatDefaultQuery();
     return (
       <div className="gf-form-inline">
         <div className="gf-form">
@@ -113,7 +121,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         <div className="gf-form gf-form--grow flex-shrink-1">
           <label className="gf-form-label">Query</label>
           <QueryField
-            query={cmd}
+            query={rawQuery}
             additionalPlugins={this.plugins}
             onChange={this.onChangeQuery}
             onRunQuery={this.props.onRunQuery}

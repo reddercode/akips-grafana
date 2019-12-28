@@ -1,15 +1,33 @@
-import { Grammar } from 'prismjs';
+// Based on Prism Bash syntax
+import { Grammar, GrammarValue } from 'prismjs';
+
+const varValue: GrammarValue = [
+  // Brace expansion
+  {
+    pattern: /\$\{[^}]+\}/,
+    greedy: true,
+    inside: {
+      // Format spec
+      operator: /:/,
+    },
+  },
+  /\$(?:\w+)/,
+];
 
 const syntax: Grammar = {
   string: {
     pattern: /(["'])(?:\\[\s\S]|\$\([^)]+\)|`[^`]+`|(?!\1)[^\\])*\1/,
     greedy: true,
+    inside: {
+      variable: varValue,
+    },
   },
   regex: {
     pattern: /(^|\s)\/(?:\[(?:[^\]\\\r\n]|\\.)*]|\\.|[^/\\\[\r\n])+\/(?=$|\s)/,
     lookbehind: true,
     greedy: true,
   },
+  variable: varValue,
   builtin: {
     pattern: /(^|\s)(mget|calc|mcalc|series|cseries|top)(?=$|\s)/,
     lookbehind: true,

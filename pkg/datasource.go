@@ -24,8 +24,7 @@ type datasourceQueryData struct {
 	Key          string `json:"key"`
 	Type         string `json:"type"`
 	DataSourceID int    `json:"datasourceId"`
-	DeviceID     string `json:"deviceId"`
-	InterfaceID  string `json:"interfaceId"`
+	RawQuery     string `json:"rawQuery"`
 	Query        string `json:"query"`
 }
 
