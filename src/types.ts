@@ -26,29 +26,11 @@ export interface MetricValue extends MetricFindValue {
 export interface TimeSeries {
   name?: string;
   tags?: { [key: string]: string };
-  points?: Point[];
-}
-
-export interface Point {
-  timestamp: number;
-  value: number;
+  points?: number[][];
 }
 
 export interface TableColumn {
   text: string;
-}
-
-export interface RowValue {
-  kind?: number;
-  doubleValue?: number;
-  int64Value?: number;
-  boolValue?: boolean;
-  stringValue?: string;
-  bytesValue?: string;
-}
-
-export interface TableRow {
-  values: RowValue[];
 }
 
 export interface Table {

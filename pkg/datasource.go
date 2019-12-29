@@ -82,7 +82,44 @@ func (ds *AKIPSDatasource) queryTestDatasource(ctx context.Context, req *datasou
 }
 
 func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
-	return &datasource.QueryResult{}, nil
+	start := req.TimeRange.FromEpochMs
+	end := req.TimeRange.ToEpochMs
+	interval := query.IntervalMs
+
+	pointsNum := (end - start) / query.IntervalMs
+	if pointsNum > query.MaxDataPoints {
+		pointsNum = query.MaxDataPoints
+		interval = (end - start) / pointsNum
+	}
+
+	points := make([]*datasource.Point, pointsNum)
+	for i := range points {
+		points[i] = &datasource.Point{
+			Timestamp: start,
+			Value:     float64(i),
+		}
+		start += interval
+	}
+
+	ret := &datasource.QueryResult{
+		Series: []*datasource.TimeSeries{
+			&datasource.TimeSeries{
+				Name: "timeseries0",
+				Tags: map[string]string{
+					"name0": "value0",
+				},
+				Points: points,
+			},
+			&datasource.TimeSeries{
+				Name: "timeseries1",
+				Tags: map[string]string{
+					"name0": "value0",
+				},
+				Points: points,
+			},
+		},
+	}
+	return ret, nil
 }
 
 func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {

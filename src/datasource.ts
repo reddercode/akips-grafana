@@ -7,6 +7,9 @@ import {
   DataSourceInstanceSettings,
   ScopedVars,
   TIME_FORMAT,
+  MutableDataFrame,
+  FieldType,
+  DataFrameDTO,
 } from '@grafana/data';
 import { TSDBQuery, TSDBRequest, MetricValue, QueryResults } from './types';
 
@@ -71,19 +74,63 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
       },
     };
 
-    for (const t of request.targets) {
-      t.query = this.templateSrv.replace(t.rawQuery, { ...request.scopedVars, ...localVars });
+    const queries = request.targets
+      .filter(q => !q.hide)
+      .map<TSDBQuery>(q => ({
+        refId: q.refId,
+        type: 'timeSeriesQuery',
+        datasourceId: this.id,
+        rawQuery: q.rawQuery,
+        query: this.templateSrv.replace(q.rawQuery, { ...request.scopedVars, ...localVars }),
+        key: q.key,
+      }));
+
+    if (queries.length === 0) {
+      return { data: [] };
     }
 
-    console.log('query', request);
-    console.log('tpl', this.templateSrv);
+    const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({
+      data: {
+        queries: queries,
+        from: request.range?.from.valueOf().toString(),
+        to: request.range?.to.valueOf().toString(),
+      } as TSDBRequest,
+      method: 'POST',
+      url: '/api/tsdb/query',
+    });
 
-    return new Promise<DataQueryResponse>(res => res({} as DataQueryResponse));
+    console.log(data);
+
+    const result = Object.values(data.results)
+      .filter(r => r.series !== null && r.series !== undefined)
+      .map<MutableDataFrame>(
+        r =>
+          new MutableDataFrame({
+            refId: r.refId,
+            fields: [
+              ...r.series?.map(s => ({
+                type: FieldType.number,
+                name: s.name,
+                values: s.points?.map(v => v[0]),
+              })),
+              // The first time field only is used anyway --eugene
+              ...r.series?.map(s => ({
+                type: FieldType.time,
+                name: s.name + ' time',
+                values: s.points?.map(v => v[1]),
+              })),
+            ],
+          } as DataFrameDTO)
+      );
+
+    console.log(result);
+
+    return { data: result };
   }
 
   async annotationQuery(request: AnnotationQueryRequest<TSDBQuery>): Promise<AnnotationEvent[]> {
     console.log('annotationQuery', request);
-    return new Promise<AnnotationEvent[]>(res => res([]));
+    return [];
   }
 
   async metricFindQuery(request: string): Promise<MetricValue[]> {
