@@ -104,14 +104,14 @@ func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context, req *datasource.
 	ret := &datasource.QueryResult{
 		Series: []*datasource.TimeSeries{
 			&datasource.TimeSeries{
-				Name: "timeseries0",
+				Name: "timeseries0Octets",
 				Tags: map[string]string{
 					"name0": "value0",
 				},
 				Points: points,
 			},
 			&datasource.TimeSeries{
-				Name: "timeseries1",
+				Name: "timeseries1Pkts",
 				Tags: map[string]string{
 					"name0": "value0",
 				},
