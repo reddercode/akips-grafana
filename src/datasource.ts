@@ -197,7 +197,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   // Used in explore mode
-  interpolateVariablesInQueries?(queries: TSDBQuery[]): TSDBQuery[] {
+  interpolateVariablesInQueries(queries: TSDBQuery[]): TSDBQuery[] {
     return queries.map<TSDBQuery>(q => ({
       ...q,
       datasource: this.name,
