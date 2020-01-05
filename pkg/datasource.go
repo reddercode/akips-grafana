@@ -3,9 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http/httputil"
 	"net/url"
+	"strconv"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/grafana/grafana-plugin-model/go/datasource"
@@ -97,44 +96,68 @@ func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context,
 	data *datasourceQueryData,
 	clientConfig *akips.Config) (*datasource.QueryResult, error) {
 
-	start := req.TimeRange.FromEpochMs
-	end := req.TimeRange.ToEpochMs
-	interval := query.IntervalMs
-
-	pointsNum := (end - start) / query.IntervalMs
-	if pointsNum > query.MaxDataPoints {
-		pointsNum = query.MaxDataPoints
-		interval = (end - start) / pointsNum
+	client := clientConfig.Client()
+	akipsReq, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{
+		"cmds": []string{data.Query},
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	points := make([]*datasource.Point, pointsNum)
-	for i := range points {
-		points[i] = &datasource.Point{
-			Timestamp: start,
-			Value:     float64(i),
+	res, err := client.Do(akipsReq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode/100 != 2 {
+		return nil, fmt.Errorf("akips-datasource: %s", res.Status)
+	}
+
+	var akipsResponse akips.GenericResponse
+	if err := akipsResponse.ParseResponse(res.Body); err != nil {
+		return nil, err
+	}
+
+	series := make([]*datasource.TimeSeries, len(akipsResponse))
+	for tsCnt, elem := range akipsResponse {
+		var name string
+		switch {
+		case elem.Attribute != "":
+			name = elem.Attribute
+		case elem.Child != "":
+			name = elem.Child
+		default:
+			name = elem.Parent
 		}
-		start += interval
+
+		points := make([]*datasource.Point, len(elem.Values))
+		if len(elem.Values) != 0 {
+			d := len(elem.Values) - 1
+			if d == 0 {
+				d = 1
+			}
+			delta := float64(req.TimeRange.ToEpochMs-req.TimeRange.FromEpochMs) / float64(d)
+			timestamp := float64(req.TimeRange.FromEpochMs)
+			for i, v := range elem.Values {
+				fv, _ := strconv.ParseFloat(v, 64)
+				points[i] = &datasource.Point{
+					Timestamp: int64(timestamp),
+					Value:     fv,
+				}
+				timestamp += delta
+			}
+		}
+
+		series[tsCnt] = &datasource.TimeSeries{
+			Name:   name,
+			Points: points,
+		}
 	}
 
-	ret := &datasource.QueryResult{
-		Series: []*datasource.TimeSeries{
-			&datasource.TimeSeries{
-				Name: "timeseries0Octets",
-				Tags: map[string]string{
-					"name0": "value0",
-				},
-				Points: points,
-			},
-			&datasource.TimeSeries{
-				Name: "timeseries1Pkts",
-				Tags: map[string]string{
-					"name0": "value0",
-				},
-				Points: points,
-			},
-		},
-	}
-	return ret, nil
+	return &datasource.QueryResult{
+		Series: series,
+	}, nil
 }
 
 func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context,
@@ -165,24 +188,14 @@ func (ds *AKIPSDatasource) queryTable(ctx context.Context,
 	}
 	defer res.Body.Close()
 
-	dump, err := httputil.DumpResponse(res, true)
-	if err != nil {
-		log.Fatal(err)
-	}
-	ds.logger.Debug(string(dump))
-
 	if res.StatusCode/100 != 2 {
-		err = fmt.Errorf("akips-datasource: %s", res.Status)
-		ds.logger.Error("API error", "status", res.Status)
-		return nil, err
+		return nil, fmt.Errorf("akips-datasource: %s", res.Status)
 	}
 
 	var akipsResponse akips.GenericResponse
 	if err := akipsResponse.ParseResponse(res.Body); err != nil {
 		return nil, err
 	}
-
-	ds.logger.Debug(spew.Sdump(akipsResponse))
 
 	var (
 		children  bool

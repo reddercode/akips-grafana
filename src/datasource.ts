@@ -71,11 +71,11 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
     const toFmt = query.range.to.format(DataSource.AKIPS_TIME_FORMAT);
 
     return {
-      __interval_s: {
+      __interval_sec: {
         text: String(intervalSec),
         value: intervalSec,
       },
-      __from_s: {
+      __from_sec: {
         text: String(fromSec),
         value: fromSec,
       },
@@ -87,35 +87,44 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
         text: toFmt,
         value: toFmt,
       },
-      __to_s: {
+      __to_sec: {
         text: String(toSec),
         value: toSec,
       },
     };
   }
 
-  guessUnit(name: string): string | undefined {
+  guessUnit(name: string): string {
     for (const s in DataSource.unitSuffixes) {
       if (name.endsWith(s)) {
         return DataSource.unitSuffixes[s];
       }
     }
-    return undefined;
+    return 'none';
   }
 
   /**
    * Query for data, and optionally stream results
    */
   async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
-    const queries = request.targets
+    console.log(request);
+    const req: DataQueryRequest<TSDBQuery> = {
+      ...request,
+      // interval must be a multiple of 60 sec --eugene
+      intervalMs: Math.ceil(request.intervalMs / 60000) * 60000,
+    };
+
+    const queries = req.targets
       .filter(q => !q.hide)
       .map<TSDBQuery>(q => ({
-        refId: q.refId,
         type: 'timeSeriesQuery',
+        refId: q.refId,
+        key: q.key,
         datasourceId: this.id,
         rawQuery: q.rawQuery,
-        query: this.templateSrv.replace(q.rawQuery, { ...request.scopedVars, ...this.getLocalVars(request) }),
-        key: q.key,
+        query: this.templateSrv.replace(q.rawQuery, { ...req.scopedVars, ...this.getLocalVars(req) }),
+        intervalMs: req.intervalMs,
+        maxDataPoints: req.maxDataPoints,
       }));
 
     if (queries.length === 0) {
@@ -125,8 +134,8 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
     const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({
       data: {
         queries: queries,
-        from: request.range?.from.valueOf().toString(),
-        to: request.range?.to.valueOf().toString(),
+        from: req.range?.from.valueOf().toString(),
+        to: req.range?.to.valueOf().toString(),
       } as TSDBRequest,
       method: 'POST',
       url: '/api/tsdb/query',
@@ -144,7 +153,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
               ...r.series?.map<FieldDTO>(s => ({
                 type: FieldType.number,
                 name: s.name || '',
-                config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
+                config: { unit: this.guessUnit(s.name || '') },
                 values: s.points?.map(v => v[0]),
               })),
               // The first time field only is used anyway --eugene

@@ -122,7 +122,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.onChangeQuery(this.formatDefaultQuery());
+        this.onChangeQuery(this.formatDefaultQuery(), true);
         if (option.value !== undefined && this.state.selectedDevice?.value !== undefined) {
           this.updateAttributes(this.state.selectedDevice.value, option.value);
         }
@@ -135,7 +135,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
       {
         selectedAttribute: option,
       },
-      () => this.onChangeQuery(this.formatDefaultQuery())
+      () => this.onChangeQuery(this.formatDefaultQuery(), true)
     );
   };
 
@@ -144,7 +144,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     const dev = selectedDevice?.value || 'SELECT_DEVICE';
     const iface = selectedChild?.value || 'SELECT_INTERFACE';
     const attr = selectedAttribute?.value || '/InOctets|OutOctets/';
-    return `series interval total $\{__interval_s\} time "from $\{__from_s\} to $\{__to_s\}" counter "${dev}" "${iface}" "${attr}"`;
+    return `series interval total $\{__interval_sec\} time "from $\{__from_sec\} to $\{__to_sec\}" * "${dev}" "${iface}" "${attr}"`;
   }
 
   render() {

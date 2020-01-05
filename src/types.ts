@@ -7,6 +7,8 @@ export interface TSDBQuery extends DataQuery {
   datasourceId: number;
   rawQuery?: string; // keep raw query just for convenience --eugene
   query?: string;
+  intervalMs?: number;
+  maxDataPoints?: number;
 }
 
 export interface TSDBRequest {
