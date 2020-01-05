@@ -9,10 +9,9 @@ import {
   MutableDataFrame,
   FieldType,
   DataFrameDTO,
-  FieldDTO,
   MetricFindValue,
 } from '@grafana/data';
-import { TSDBQuery, TSDBRequest, QueryResults } from './types';
+import { TSDBQuery, TSDBRequest, QueryResults, TimeSeries } from './types';
 
 export class DataSource extends DataSourceApi<TSDBQuery> {
   private static AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
@@ -94,13 +93,13 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
     };
   }
 
-  guessUnit(name: string): string {
+  guessUnit(name: string): string | undefined {
     for (const s in DataSource.unitSuffixes) {
       if (name.endsWith(s)) {
         return DataSource.unitSuffixes[s];
       }
     }
-    return 'none';
+    return undefined;
   }
 
   /**
@@ -141,8 +140,6 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
       url: '/api/tsdb/query',
     });
 
-    console.log(data);
-
     const result = Object.values(data.results)
       .filter(r => r.series !== null && r.series !== undefined)
       .map<MutableDataFrame>(
@@ -150,18 +147,24 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
           new MutableDataFrame({
             refId: r.refId,
             fields: [
-              ...r.series?.map<FieldDTO>(s => ({
+              ...r.series?.map(s => ({
                 type: FieldType.number,
                 name: s.name || '',
-                config: { unit: this.guessUnit(s.name || '') },
+                config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
                 values: s.points?.map(v => v[0]),
               })),
               // The first time field only is used anyway --eugene
-              ...r.series?.map<FieldDTO>(s => ({
-                type: FieldType.time,
-                name: s.name + ' time',
-                values: s.points?.map(v => v[1]),
-              })),
+              ...((s: TimeSeries | undefined) =>
+                s
+                  ? [
+                      {
+                        type: FieldType.time,
+                        name: 'Timestamp',
+                        config: { unit: 'dateTimeAsIso' },
+                        values: s.points?.map(v => v[1]),
+                      },
+                    ]
+                  : [])(r.series?.[0]),
             ],
           } as DataFrameDTO)
       );
