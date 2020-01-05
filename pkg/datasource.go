@@ -3,19 +3,22 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
+	"log"
+	"net/http/httputil"
+	"net/url"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/grafana/grafana-plugin-model/go/datasource"
 	hclog "github.com/hashicorp/go-hclog"
 	plugin "github.com/hashicorp/go-plugin"
+	"github.com/reddercode/akips-grafana/pkg/akips"
 	"golang.org/x/net/context"
 )
 
 const (
 	queryTestDatasource = "testDatasource"
 	queryAnnotation     = "annotationQuery"
-	queryMetricFind     = "metricFindQuery"
+	queryTable          = "tableQuery"
 	queryTimeSeries     = "timeSeriesQuery"
 )
 
@@ -36,8 +39,12 @@ type AKIPSDatasource struct {
 func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.DatasourceRequest) (*datasource.DatasourceResponse, error) {
 	ds.logger.Debug(spew.Sdump(req))
 
-	var response datasource.DatasourceResponse
+	akipsConfig := akips.Config{
+		URL:        req.Datasource.Url,
+		AuthMethod: akips.PasswordAuth(req.Datasource.DecryptedSecureJsonData["password"]),
+	}
 
+	var response datasource.DatasourceResponse
 	for _, q := range req.Queries {
 		var data datasourceQueryData
 		if err := json.Unmarshal([]byte(q.ModelJson), &data); err != nil {
@@ -48,20 +55,18 @@ func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.Datasource
 			result *datasource.QueryResult
 			err    error
 		)
-		ds.logger.Debug("query", "type", data.Type)
-
 		switch data.Type {
 		case queryTestDatasource:
-			result, err = ds.queryTestDatasource(ctx, req, q, &data)
+			result, err = ds.queryTestDatasource(ctx, req, q, &data, &akipsConfig)
 
 		case queryAnnotation:
-			result, err = ds.queryAnnotation(ctx, req, q, &data)
+			result, err = ds.queryAnnotation(ctx, req, q, &data, &akipsConfig)
 
-		case queryMetricFind:
-			result, err = ds.queryMetricFind(ctx, req, q, &data)
+		case queryTable:
+			result, err = ds.queryTable(ctx, req, q, &data, &akipsConfig)
 
 		default:
-			result, err = ds.queryTimeSeries(ctx, req, q, &data)
+			result, err = ds.queryTimeSeries(ctx, req, q, &data, &akipsConfig)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("akips-datasource: %v", err)
@@ -74,14 +79,24 @@ func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.Datasource
 	return &response, nil
 }
 
-func (ds *AKIPSDatasource) queryTestDatasource(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
+func (ds *AKIPSDatasource) queryTestDatasource(ctx context.Context,
+	req *datasource.DatasourceRequest,
+	query *datasource.Query,
+	data *datasourceQueryData,
+	clientConfig *akips.Config) (*datasource.QueryResult, error) {
+
 	// Mock
 	return &datasource.QueryResult{
 		Error: "some wired shit",
 	}, nil
 }
 
-func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
+func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context,
+	req *datasource.DatasourceRequest,
+	query *datasource.Query,
+	data *datasourceQueryData,
+	clientConfig *akips.Config) (*datasource.QueryResult, error) {
+
 	start := req.TimeRange.FromEpochMs
 	end := req.TimeRange.ToEpochMs
 	interval := query.IntervalMs
@@ -122,81 +137,120 @@ func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context, req *datasource.
 	return ret, nil
 }
 
-func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
+func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context,
+	req *datasource.DatasourceRequest,
+	query *datasource.Query,
+	data *datasourceQueryData,
+	clientConfig *akips.Config) (*datasource.QueryResult, error) {
 	return &datasource.QueryResult{}, nil
 }
 
-func (ds *AKIPSDatasource) queryMetricFind(ctx context.Context, req *datasource.DatasourceRequest, query *datasource.Query, data *datasourceQueryData) (*datasource.QueryResult, error) {
-	// Mock
-	if strings.HasPrefix(data.Query, "mget device") {
-		return &datasource.QueryResult{
-			Tables: []*datasource.Table{
-				&datasource.Table{
-					Columns: []*datasource.TableColumn{
-						&datasource.TableColumn{
-							Name: "device",
-						},
-					},
-					Rows: []*datasource.TableRow{
-						&datasource.TableRow{
-							Values: []*datasource.RowValue{
-								&datasource.RowValue{
-									Kind:        datasource.RowValue_TYPE_STRING,
-									StringValue: "device0",
-								},
-							},
-						},
-						&datasource.TableRow{
-							Values: []*datasource.RowValue{
-								&datasource.RowValue{
-									Kind:        datasource.RowValue_TYPE_STRING,
-									StringValue: "device1",
-								},
-							},
-						},
-					},
-				},
+func (ds *AKIPSDatasource) queryTable(ctx context.Context,
+	req *datasource.DatasourceRequest,
+	query *datasource.Query,
+	data *datasourceQueryData,
+	clientConfig *akips.Config) (*datasource.QueryResult, error) {
+
+	client := clientConfig.Client()
+	akipsReq, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{
+		"cmds": []string{data.Query},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := client.Do(akipsReq)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	dump, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ds.logger.Debug(string(dump))
+
+	if res.StatusCode/100 != 2 {
+		err = fmt.Errorf("akips-datasource: %s", res.Status)
+		ds.logger.Error("API error", "status", res.Status)
+		return nil, err
+	}
+
+	var akipsResponse akips.GenericResponse
+	if err := akipsResponse.ParseResponse(res.Body); err != nil {
+		return nil, err
+	}
+
+	ds.logger.Debug(spew.Sdump(akipsResponse))
+
+	var (
+		children  bool
+		attrs     bool
+		valuesNum int
+	)
+	rows := make([]*datasource.TableRow, len(akipsResponse))
+	for i, elem := range akipsResponse {
+		values := []*datasource.RowValue{
+			&datasource.RowValue{
+				Kind:        datasource.RowValue_TYPE_STRING,
+				StringValue: elem.Parent,
 			},
-		}, nil
+		}
+		if elem.Child != "" {
+			children = true
+			values = append(values, &datasource.RowValue{
+				Kind:        datasource.RowValue_TYPE_STRING,
+				StringValue: elem.Child,
+			})
+		}
+		if elem.Attribute != "" {
+			attrs = true
+			values = append(values, &datasource.RowValue{
+				Kind:        datasource.RowValue_TYPE_STRING,
+				StringValue: elem.Attribute,
+			})
+		}
+		for _, v := range elem.Values {
+			values = append(values, &datasource.RowValue{
+				Kind:        datasource.RowValue_TYPE_STRING,
+				StringValue: v,
+			})
+		}
+		if len(elem.Values) > valuesNum {
+			valuesNum = len(elem.Values)
+		}
+		rows[i] = &datasource.TableRow{
+			Values: values,
+		}
+	}
+
+	columns := []*datasource.TableColumn{
+		&datasource.TableColumn{
+			Name: "Parent",
+		},
+	}
+	if children {
+		columns = append(columns, &datasource.TableColumn{
+			Name: "Child",
+		})
+	}
+	if attrs {
+		columns = append(columns, &datasource.TableColumn{
+			Name: "Attribute",
+		})
+	}
+	for i := 0; i < valuesNum; i++ {
+		columns = append(columns, &datasource.TableColumn{
+			Name: fmt.Sprintf("Value %d", i),
+		})
 	}
 
 	return &datasource.QueryResult{
 		Tables: []*datasource.Table{
 			&datasource.Table{
-				Columns: []*datasource.TableColumn{
-					&datasource.TableColumn{
-						Name: "interface",
-					},
-					&datasource.TableColumn{
-						Name: "index",
-					},
-				},
-				Rows: []*datasource.TableRow{
-					&datasource.TableRow{
-						Values: []*datasource.RowValue{
-							&datasource.RowValue{
-								Kind:        datasource.RowValue_TYPE_STRING,
-								StringValue: "interface0",
-							},
-							&datasource.RowValue{
-								Kind:       datasource.RowValue_TYPE_INT64,
-								Int64Value: 0,
-							},
-						},
-					},
-					&datasource.TableRow{
-						Values: []*datasource.RowValue{
-							&datasource.RowValue{
-								Kind:        datasource.RowValue_TYPE_STRING,
-								StringValue: "interface1",
-							},
-							&datasource.RowValue{
-								Kind:       datasource.RowValue_TYPE_INT64,
-								Int64Value: 1,
-							},
-						},
-					},
-				},
+				Columns: columns,
+				Rows:    rows,
 			},
 		},
 	}, nil

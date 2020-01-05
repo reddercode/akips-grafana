@@ -1,19 +1,18 @@
-import React, { PureComponent, ChangeEvent } from 'react';
+import React from 'react';
 import { css, cx } from 'emotion';
-import { FormField, Input, SecretFormField, useTheme } from '@grafana/ui';
+import { FormField, Input, SecretFormField } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { AKIPSSecureJSONData } from './types';
 
-export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorProps> {
+export class ConfigEditor extends React.PureComponent<DataSourcePluginOptionsEditorProps> {
   render() {
     const { options, onOptionsChange } = this.props;
     const { secureJsonFields } = options;
     const secureJsonData = (options.secureJsonData || {}) as AKIPSSecureJSONData;
     const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(options.url);
     const defaultUrl = 'http://localhost:9090';
-    const theme = useTheme();
     const notValidStyle = css`
-      box-shadow: inset 0 0px 5px ${theme.colors.red};
+      box-shadow: inset 0 0px 5px red;
     `;
 
     const inputStyle = cx({ [`width-20`]: true, [notValidStyle]: !isValidUrl });
@@ -59,7 +58,7 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
                     },
                   })
                 }
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   onOptionsChange({
                     ...options,
                     secureJsonData: {

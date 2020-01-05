@@ -2,6 +2,8 @@ GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
 TARGET = build
 
+GOSRC := $(shell find . -name '*.go')
+
 BIN := dist/akips-plugin_$(GOOS)_$(GOARCH)
 PLUGIN := dist/module.js
 TARGETS = \
@@ -14,7 +16,7 @@ TARGETS = \
 
 all: $(PLUGIN) $(BIN)
 
-$(BIN): pkg/*.go
+$(BIN): $(GOSRC)
 	go build -i -o $@ ./pkg
 
 $(PLUGIN): src/*.ts src/*.tsx src/*.json

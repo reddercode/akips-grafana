@@ -10,14 +10,16 @@ import {
   FieldType,
   DataFrameDTO,
   FieldDTO,
+  MetricFindValue,
 } from '@grafana/data';
-import { TSDBQuery, TSDBRequest, MetricValue, QueryResults } from './types';
+import { TSDBQuery, TSDBRequest, QueryResults } from './types';
 
 export class DataSource extends DataSourceApi<TSDBQuery> {
   private static AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
   private static unitSuffixes: { [key: string]: string } = {
     Octets: 'bytes',
-    Pkts: 'none',
+    BitRate: 'bps',
+    Util: 'percent',
   };
 
   /** @ngInject */
@@ -164,19 +166,18 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
    */
   async annotationQuery(request: AnnotationQueryRequest<TSDBQuery>): Promise<AnnotationEvent[]> {
     // TODO
-    console.log('annotationQuery', request);
     return [];
   }
 
   /**
    * Variable query action.
    */
-  async metricFindQuery(request: string): Promise<MetricValue[]> {
+  async metricFindQuery(request: string): Promise<MetricFindValue[]> {
     const r = this.templateSrv.replace(request, {});
     const q: TSDBQuery = {
       datasourceId: this.id,
-      type: 'metricFindQuery',
-      refId: 'metricFindQuery',
+      type: 'tableQuery',
+      refId: 'tableQuery',
       rawQuery: request,
       query: r,
     };
@@ -187,13 +188,25 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
       url: '/api/tsdb/query',
     });
 
-    const res: MetricValue[] =
-      data.results['metricFindQuery']?.tables?.[0].rows?.map<MetricValue>(row => ({
-        text: String(row[0] || ''),
-        value: row[1] !== undefined ? Number(row[1]) : undefined,
-      })) || [];
+    const table = data.results['tableQuery']?.tables?.[0];
+    if (!table) {
+      return [];
+    }
 
-    return res;
+    let subjectIndex = 0;
+    if (table.columns !== undefined) {
+      if (table.columns.length > 1 && table.columns[1].text === 'Child') {
+        subjectIndex = 1;
+      }
+      if (table.columns.length > 2 && table.columns[2].text === 'Attribute') {
+        subjectIndex = 2;
+      }
+    }
+
+    const res = table.rows?.map<MetricFindValue>(row => ({
+      text: String(row[subjectIndex]) || '',
+    }));
+    return res || [];
   }
 
   // Used in explore mode

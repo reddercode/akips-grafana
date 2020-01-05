@@ -1,6 +1,6 @@
-import { DataQuery, MetricFindValue } from '@grafana/data';
+import { DataQuery } from '@grafana/data';
 
-type TSDBQueryType = 'testDatasource' | 'annotationQuery' | 'metricFindQuery' | 'timeSeriesQuery';
+type TSDBQueryType = 'testDatasource' | 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
 
 export interface TSDBQuery extends DataQuery {
   type: TSDBQueryType;
@@ -17,10 +17,6 @@ export interface TSDBRequest {
 
 export interface AKIPSSecureJSONData {
   password?: string;
-}
-
-export interface MetricValue extends MetricFindValue {
-  value?: number;
 }
 
 export interface TimeSeries {

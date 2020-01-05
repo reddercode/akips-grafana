@@ -12,9 +12,11 @@ type Props = QueryEditorProps<DataSource, TSDBQuery>;
 interface State {
   syntaxLoaded: boolean;
   devices?: Array<SelectableValue<string>> | null;
-  interfaces?: Array<SelectableValue<string>> | null;
   selectedDevice?: SelectableValue<string> | null;
-  selectedInterface?: SelectableValue<string> | null;
+  children?: Array<SelectableValue<string>> | null;
+  selectedChild?: SelectableValue<string> | null;
+  attributes?: Array<SelectableValue<string>> | null;
+  selectedAttribute?: SelectableValue<string> | null;
 }
 
 export class QueryEditor extends React.PureComponent<Props, State> {
@@ -43,20 +45,44 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
   async updateDevices() {
     const { datasource } = this.props;
-    const result = (await datasource.metricFindQuery('mget device *')).map<SelectableValue<string>>(value => ({
+    const result = (await datasource.metricFindQuery('mlist device *')).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
-    this.setState({ devices: result });
+    this.setState({
+      devices: result,
+      selectedDevice: null,
+      children: null,
+      selectedChild: null,
+      attributes: null,
+      selectedAttribute: null,
+    });
   }
 
-  async updateInterfaces(dev: string) {
+  async updateChildren(dev: string) {
     const { datasource } = this.props;
-    const result = (await datasource.metricFindQuery(`mget interface "${dev}" *`)).map<SelectableValue<string>>(value => ({
+    const result = (await datasource.metricFindQuery(`mlist * "${dev}" *`)).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
-    this.setState({ interfaces: result, selectedInterface: null });
+    this.setState({
+      children: result,
+      selectedChild: null,
+      attributes: null,
+      selectedAttribute: null,
+    });
+  }
+
+  async updateAttributes(dev: string, child: string) {
+    const { datasource } = this.props;
+    const result = (await datasource.metricFindQuery(`mlist * "${dev}" "${child}" *`)).map<SelectableValue<string>>(value => ({
+      label: value.text,
+      value: value.text,
+    }));
+    this.setState({
+      attributes: result,
+      selectedAttribute: null,
+    });
   }
 
   onChangeQuery = (value: string, override?: boolean) => {
@@ -74,25 +100,51 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     this.setState(
       {
         selectedDevice: option,
-        selectedInterface: null,
-        interfaces: null,
+        children: null,
+        selectedChild: null,
+        attributes: null,
+        selectedAttribute: null,
+      },
+      () => {
+        this.onChangeQuery(this.formatDefaultQuery());
+        if (option.value !== undefined) {
+          this.updateChildren(option.value);
+        }
+      }
+    );
+  };
+
+  onChangeChild = (option: SelectableValue<string>) => {
+    this.setState(
+      {
+        selectedChild: option,
+        attributes: null,
+        selectedAttribute: null,
+      },
+      () => {
+        this.onChangeQuery(this.formatDefaultQuery());
+        if (option.value !== undefined && this.state.selectedDevice?.value !== undefined) {
+          this.updateAttributes(this.state.selectedDevice.value, option.value);
+        }
+      }
+    );
+  };
+
+  onChangeAttribute = (option: SelectableValue<string>) => {
+    this.setState(
+      {
+        selectedAttribute: option,
       },
       () => this.onChangeQuery(this.formatDefaultQuery())
     );
-    if (option.value !== undefined) {
-      this.updateInterfaces(option.value);
-    }
-  };
-
-  onChangeInterface = (option: SelectableValue<string>) => {
-    this.setState({ selectedInterface: option }, () => this.onChangeQuery(this.formatDefaultQuery()));
   };
 
   formatDefaultQuery(): string {
-    const { selectedDevice, selectedInterface } = this.state;
+    const { selectedDevice, selectedChild, selectedAttribute } = this.state;
     const dev = selectedDevice?.value || 'SELECT_DEVICE';
-    const iface = selectedInterface?.value || 'SELECT_INTERFACE';
-    return `series interval total $\{__interval_s\} time "from $\{__from_s\} to $\{__to_s\}" counter "${dev}" "${iface}" /InOctets|OutOctets/`;
+    const iface = selectedChild?.value || 'SELECT_INTERFACE';
+    const attr = selectedAttribute?.value || '/InOctets|OutOctets/';
+    return `series interval total $\{__interval_s\} time "from $\{__from_s\} to $\{__to_s\}" counter "${dev}" "${iface}" "${attr}"`;
   }
 
   render() {
@@ -110,12 +162,22 @@ export class QueryEditor extends React.PureComponent<Props, State> {
           />
         </div>
         <div className="gf-form">
-          <label className="gf-form-label">Interface</label>
+          <label className="gf-form-label">Child</label>
           <Select
-            options={this.state.interfaces || []}
-            onChange={this.onChangeInterface}
-            value={this.state.selectedInterface as SelectableValue<string>}
-            placeholder="Select interface"
+            options={this.state.children || []}
+            onChange={this.onChangeChild}
+            value={this.state.selectedChild as SelectableValue<string>}
+            placeholder="Select a child (interface)"
+          />
+        </div>
+        <div className="gf-form">
+          <label className="gf-form-label">Attribute</label>
+          <Select
+            options={this.state.attributes || []}
+            onChange={this.onChangeAttribute}
+            value={this.state.selectedAttribute as SelectableValue<string>}
+            placeholder="Select an attribute"
+            isClearable
           />
         </div>
         <div className="gf-form gf-form--grow flex-shrink-1">
