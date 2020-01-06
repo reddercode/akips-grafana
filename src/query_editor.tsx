@@ -138,7 +138,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ rawQuery: this.formatDefaultQuery(), device: option?.value, child: undefined, attribute: undefined });
+        this.changeQuery({ device: option?.value, child: undefined, attribute: undefined });
         if (option?.value) {
           this.updateChildren(option.value);
         }
@@ -154,7 +154,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ rawQuery: this.formatDefaultQuery(), child: option?.value, attribute: undefined }, true);
+        this.changeQuery({ child: option?.value, attribute: undefined }, true);
         if (option?.value && this.state.selectedDevice?.value) {
           this.updateAttributes(this.state.selectedDevice.value, option.value);
         }
@@ -167,7 +167,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
       {
         selectedAttribute: option,
       },
-      () => this.changeQuery({ rawQuery: this.formatDefaultQuery(), attribute: option?.value }, true)
+      () => this.changeQuery({ attribute: option?.value }, true)
     );
   };
 
@@ -189,18 +189,9 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     }
   };
 
-  formatDefaultQuery(): string {
-    const { selectedDevice, selectedChild, selectedAttribute } = this.state;
-    const dev = selectedDevice?.value || 'SELECT_DEVICE';
-    const iface = selectedChild?.value || 'SELECT_INTERFACE';
-    const attr = selectedAttribute?.value || '/InOctets|OutOctets/';
-
-    return `series interval total $\{__interval_sec\} time "from $\{__from_sec\} to $\{__to_sec\}" * "${dev}" "${iface}" "${attr}"`;
-  }
-
   render() {
     const { query } = this.props;
-    const rawQuery = query.rawQuery || this.formatDefaultQuery();
+    const rawQuery = query.rawQuery || DataSource.DEFAULT_QUERY;
     return (
       <div className="gf-form-inline">
         <div className="gf-form">

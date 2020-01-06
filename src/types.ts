@@ -4,7 +4,7 @@ export type QueryType = 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
 
 export interface QueryOptions {
   type?: QueryType;
-  rawQuery?: string; // keep raw query just for convenience --eugene
+  rawQuery?: string;
   query?: string;
   singleValue?: boolean;
   intervalMs?: number;

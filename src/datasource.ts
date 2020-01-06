@@ -14,6 +14,9 @@ import {
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
 
 export class DataSource extends DataSourceApi<Query> {
+  static DEFAULT_QUERY =
+    'series interval total ${__interval_sec} time "from ${__from_sec} to ${__to_sec}" * "${__device}" "${__child}" "${__attribute}"';
+
   private static AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
   private static UNIT_SUFFIXES: { [key: string]: string } = {
     Octets: 'bytes',
@@ -61,7 +64,7 @@ export class DataSource extends DataSourceApi<Query> {
   }
 
   // Use template engine to build AKiPS queries
-  getLocalVars(query: DataQueryRequest<Query>): ScopedVars {
+  getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars {
     const intervalSec = Math.floor(query.intervalMs / 1000);
     const fromSec = query.range.from.unix();
     const fromFmt = query.range.from.format(DataSource.AKIPS_TIME_FORMAT);
@@ -88,6 +91,18 @@ export class DataSource extends DataSourceApi<Query> {
       __to_sec: {
         text: String(toSec),
         value: toSec,
+      },
+      __device: {
+        text: target.device || '',
+        value: target.device || '',
+      },
+      __child: {
+        text: target.child || '',
+        value: target.child || '',
+      },
+      __attribute: {
+        text: target.attribute || '',
+        value: target.attribute || '',
       },
     };
   }
@@ -120,8 +135,10 @@ export class DataSource extends DataSourceApi<Query> {
         key: q.key,
         singleValue: q.singleValue,
         omitParents: q.omitParents,
-        rawQuery: q.rawQuery,
-        query: this.templateSrv.replace(q.rawQuery, { ...req.scopedVars, ...this.getLocalVars(req) }),
+        query: this.templateSrv.replace(q.rawQuery || DataSource.DEFAULT_QUERY, {
+          ...req.scopedVars,
+          ...this.getLocalVars(req, q),
+        }),
         intervalMs: req.intervalMs,
         maxDataPoints: req.maxDataPoints,
       }));
