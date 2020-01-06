@@ -29,6 +29,7 @@ type datasourceQueryData struct {
 	RawQuery     string `json:"rawQuery"`
 	Query        string `json:"query"`
 	SingleValue  bool   `json:"singleValue"`
+	OmitParents  bool   `json:"omitParents"`
 }
 
 type datasourceQuery struct {
@@ -131,15 +132,7 @@ func (ds *AKIPSDatasource) doQuery(ctx context.Context, query *datasourceQuery, 
 func (ds *AKIPSDatasource) processTimeSeries(response akips.GenericResponse, query *datasourceQuery) (*datasource.QueryResult, error) {
 	series := make([]*datasource.TimeSeries, len(response))
 	for tsCnt, elem := range response {
-		var name string
-		switch {
-		case elem.Attribute != "":
-			name = elem.Attribute
-		case elem.Child != "":
-			name = elem.Child
-		default:
-			name = elem.Parent
-		}
+		name := attrName(elem)
 
 		var points []*datasource.Point
 		if len(elem.Values) != 0 {
@@ -189,6 +182,17 @@ func (ds *AKIPSDatasource) processTimeSeries(response akips.GenericResponse, que
 	}, nil
 }
 
+func attrName(e *akips.GenericResponseEntry) string {
+	switch {
+	case e.Attribute != "":
+		return e.Attribute
+	case e.Child != "":
+		return e.Child
+	default:
+		return e.Parent
+	}
+}
+
 func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *datasourceQuery) (*datasource.QueryResult, error) {
 	var (
 		children  bool
@@ -197,25 +201,31 @@ func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *d
 	)
 	rows := make([]*datasource.TableRow, len(response))
 	for i, elem := range response {
-		values := []*datasource.RowValue{
-			&datasource.RowValue{
+		values := make([]*datasource.RowValue, 0, 3+len(elem.Values))
+		if query.data.OmitParents {
+			values = append(values, &datasource.RowValue{
+				Kind:        datasource.RowValue_TYPE_STRING,
+				StringValue: attrName(elem),
+			})
+		} else {
+			values = append(values, &datasource.RowValue{
 				Kind:        datasource.RowValue_TYPE_STRING,
 				StringValue: elem.Parent,
-			},
-		}
-		if elem.Child != "" {
-			children = true
-			values = append(values, &datasource.RowValue{
-				Kind:        datasource.RowValue_TYPE_STRING,
-				StringValue: elem.Child,
 			})
-		}
-		if elem.Attribute != "" {
-			attrs = true
-			values = append(values, &datasource.RowValue{
-				Kind:        datasource.RowValue_TYPE_STRING,
-				StringValue: elem.Attribute,
-			})
+			if elem.Child != "" {
+				children = true
+				values = append(values, &datasource.RowValue{
+					Kind:        datasource.RowValue_TYPE_STRING,
+					StringValue: elem.Child,
+				})
+			}
+			if elem.Attribute != "" {
+				attrs = true
+				values = append(values, &datasource.RowValue{
+					Kind:        datasource.RowValue_TYPE_STRING,
+					StringValue: elem.Attribute,
+				})
+			}
 		}
 
 		if len(elem.Values) != 0 {
@@ -239,29 +249,42 @@ func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *d
 				}
 			}
 		}
+
 		rows[i] = &datasource.TableRow{
 			Values: values,
 		}
 	}
 
-	columns := []*datasource.TableColumn{
-		&datasource.TableColumn{
+	columns := make([]*datasource.TableColumn, 0, 3+valuesNum)
+	if query.data.OmitParents {
+		columns = append(columns, &datasource.TableColumn{
+			Name: "Name",
+		})
+	} else {
+		columns = append(columns, &datasource.TableColumn{
 			Name: "Parent",
-		},
-	}
-	if children {
-		columns = append(columns, &datasource.TableColumn{
-			Name: "Child",
 		})
+		if children {
+			columns = append(columns, &datasource.TableColumn{
+				Name: "Child",
+			})
+		}
+		if attrs {
+			columns = append(columns, &datasource.TableColumn{
+				Name: "Attribute",
+			})
+		}
 	}
-	if attrs {
+
+	if valuesNum > 1 {
+		for i := 0; i < valuesNum; i++ {
+			columns = append(columns, &datasource.TableColumn{
+				Name: fmt.Sprintf("Value[%d]", i),
+			})
+		}
+	} else if valuesNum == 1 {
 		columns = append(columns, &datasource.TableColumn{
-			Name: "Attribute",
-		})
-	}
-	for i := 0; i < valuesNum; i++ {
-		columns = append(columns, &datasource.TableColumn{
-			Name: fmt.Sprintf("Value[%d]", i),
+			Name: "Value",
 		})
 	}
 

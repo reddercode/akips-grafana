@@ -114,12 +114,13 @@ export class DataSource extends DataSourceApi<Query> {
     const queries = req.targets
       .filter(q => !q.hide)
       .map<Query>(q => ({
+        datasourceId: this.id,
         type: q.type || 'timeSeriesQuery',
         refId: q.refId,
         key: q.key,
-        datasourceId: this.id,
-        rawQuery: q.rawQuery,
         singleValue: q.singleValue,
+        omitParents: q.omitParents,
+        rawQuery: q.rawQuery,
         query: this.templateSrv.replace(q.rawQuery, { ...req.scopedVars, ...this.getLocalVars(req) }),
         intervalMs: req.intervalMs,
         maxDataPoints: req.maxDataPoints,
@@ -203,6 +204,7 @@ export class DataSource extends DataSourceApi<Query> {
       datasourceId: this.id,
       type: 'tableQuery',
       refId: 'tableQuery',
+      omitParents: true,
       rawQuery: request,
       query: r,
     };
@@ -218,18 +220,8 @@ export class DataSource extends DataSourceApi<Query> {
       return [];
     }
 
-    let subjectIndex = 0;
-    if (table.columns !== undefined) {
-      if (table.columns.length > 1 && table.columns[1].text === 'Child') {
-        subjectIndex = 1;
-      }
-      if (table.columns.length > 2 && table.columns[2].text === 'Attribute') {
-        subjectIndex = 2;
-      }
-    }
-
     const res = table.rows?.map<MetricFindValue>(row => ({
-      text: String(row[subjectIndex]) || '',
+      text: String(row[0]) || '',
     }));
     return res || [];
   }

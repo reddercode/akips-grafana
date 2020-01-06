@@ -13,6 +13,7 @@ export interface QueryOptions {
   device?: string;
   child?: string;
   attribute?: string;
+  omitParents?: boolean;
 }
 
 export interface Query extends DataQuery, QueryOptions {

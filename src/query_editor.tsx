@@ -182,6 +182,13 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     }
   };
 
+  onChangeOmitParents = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
+    if (evt) {
+      const value = evt.currentTarget.checked;
+      this.changeQuery({ omitParents: value }, true);
+    }
+  };
+
   formatDefaultQuery(): string {
     const { selectedDevice, selectedChild, selectedAttribute } = this.state;
     const dev = selectedDevice?.value || 'SELECT_DEVICE';
@@ -242,6 +249,9 @@ export class QueryEditor extends React.PureComponent<Props, State> {
           <label className="gf-form-label">Format</label>
           <Select isSearchable={false} options={QueryEditor.QUERY_TYPES} onChange={this.onChangeType} value={this.state.queryType} />
           <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
+          {this.state.queryType?.value === 'tableQuery' && (
+            <Switch label="Omit parents" checked={query.omitParents || false} onChange={this.onChangeOmitParents} />
+          )}
         </div>
       </div>
     );
