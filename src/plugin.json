@@ -1,14 +1,14 @@
 {
 	"type": "datasource",
 	"id": "akips-datasource",
-	"name": "AKiPS Data Source",
+	"name": "AKiPS",
 	"metrics": true,
 	"annotations": true,
 	"backend": true,
 	"alerting": true,
 	"executable": "akips-plugin",
 	"info": {
-		"description": "Simple Data Source",
+		"description": "AKiPS Data Source",
 		"author": {
 			"name": "ECAD Labs"
 		},
