@@ -140,11 +140,11 @@ export class DataSource extends DataSourceApi<Query> {
     });
 
     const result = Object.values(data.results)
-      .filter(r => r.series || r.tables)
+      .filter(r => r.series?.length || r.tables?.length)
       .map<MutableDataFrame>(
         r =>
           new MutableDataFrame(
-            r.series
+            r.series?.length
               ? {
                   // Time series response
                   refId: r.refId,

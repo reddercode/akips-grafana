@@ -128,7 +128,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     }
   }
 
-  onChangeDevice = (option: SelectableValue<string>) => {
+  onChangeDevice = (option: SelectableValue<string> | null) => {
     this.setState(
       {
         selectedDevice: option,
@@ -138,15 +138,15 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ rawQuery: this.formatDefaultQuery(), device: option.value, child: undefined, attribute: undefined });
-        if (option.value) {
+        this.changeQuery({ rawQuery: this.formatDefaultQuery(), device: option?.value, child: undefined, attribute: undefined });
+        if (option?.value) {
           this.updateChildren(option.value);
         }
       }
     );
   };
 
-  onChangeChild = (option: SelectableValue<string>) => {
+  onChangeChild = (option: SelectableValue<string> | null) => {
     this.setState(
       {
         selectedChild: option,
@@ -154,20 +154,20 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ rawQuery: this.formatDefaultQuery(), child: option.value, attribute: undefined }, true);
-        if (option.value && this.state.selectedDevice?.value) {
+        this.changeQuery({ rawQuery: this.formatDefaultQuery(), child: option?.value, attribute: undefined }, true);
+        if (option?.value && this.state.selectedDevice?.value) {
           this.updateAttributes(this.state.selectedDevice.value, option.value);
         }
       }
     );
   };
 
-  onChangeAttribute = (option: SelectableValue<string>) => {
+  onChangeAttribute = (option: SelectableValue<string> | null) => {
     this.setState(
       {
         selectedAttribute: option,
       },
-      () => this.changeQuery({ rawQuery: this.formatDefaultQuery(), attribute: option.value }, true)
+      () => this.changeQuery({ rawQuery: this.formatDefaultQuery(), attribute: option?.value }, true)
     );
   };
 
@@ -203,6 +203,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
             onChange={this.onChangeDevice}
             value={this.state.selectedDevice as SelectableValue<string>}
             placeholder="Select device"
+            isClearable
           />
         </div>
         <div className="gf-form">
@@ -212,6 +213,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
             onChange={this.onChangeChild}
             value={this.state.selectedChild as SelectableValue<string>}
             placeholder="Select a child (interface)"
+            isClearable
           />
         </div>
         <div className="gf-form">
