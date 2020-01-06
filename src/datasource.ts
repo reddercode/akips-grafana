@@ -32,7 +32,6 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   async testDatasource() {
     const q: TSDBQuery = {
       datasourceId: this.id,
-      type: 'testDatasource',
       refId: 'testDatasource',
     };
 
@@ -159,7 +158,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
                   ? [
                       {
                         type: FieldType.time,
-                        name: 'Timestamp',
+                        name: 'Time',
                         config: { unit: 'dateTimeAsIso' },
                         values: s.points?.map(v => v[1]),
                       },

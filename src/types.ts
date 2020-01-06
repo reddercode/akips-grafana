@@ -1,10 +1,10 @@
 import { DataQuery } from '@grafana/data';
 
-type TSDBQueryType = 'testDatasource' | 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
+type TSDBQueryType = 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
 
 export interface TSDBQuery extends DataQuery {
-  type: TSDBQueryType;
   datasourceId: number;
+  type?: TSDBQueryType;
   rawQuery?: string; // keep raw query just for convenience --eugene
   query?: string;
   intervalMs?: number;

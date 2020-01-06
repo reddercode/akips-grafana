@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -158,11 +157,6 @@ var flowDefaultMapping = []string{
 	flowURL,
 }
 
-const (
-	startBufSize = 64 * 1024
-	maxBufSize   = 64 * 1024 * 1024
-)
-
 type NetflowResponse []*NetflowEntry
 
 func (f *NetflowResponse) ParseResponse(rd io.Reader) error {
@@ -170,14 +164,9 @@ func (f *NetflowResponse) ParseResponse(rd io.Reader) error {
 	mapping := flowDefaultMapping
 
 	sc := bufio.NewScanner(rd)
-	sc.Buffer(make([]byte, startBufSize), maxBufSize)
 
 	var gotHeader bool
-
-	for {
-		if !sc.Scan() {
-			break
-		}
+	for sc.Scan() {
 		if e, ok := isError(sc.Text()); ok {
 			return fmt.Errorf("akips: %s", e)
 		}
@@ -266,7 +255,6 @@ func (m *MsgResponse) ParseResponse(rd io.Reader) error {
 	res := MsgResponse{}
 
 	sc := bufio.NewScanner(rd)
-	sc.Buffer(make([]byte, startBufSize), maxBufSize)
 
 	for sc.Scan() {
 		if e, ok := isError(sc.Text()); ok {
@@ -326,12 +314,8 @@ func (t *NetflowTimeSeriesResponse) ParseResponse(rd io.Reader) error {
 	res := make(NetflowTimeSeriesResponse, 4)
 
 	sc := bufio.NewScanner(rd)
-	sc.Buffer(make([]byte, startBufSize), maxBufSize)
 
-	for {
-		if !sc.Scan() {
-			break
-		}
+	for sc.Scan() {
 		if e, ok := isError(sc.Text()); ok {
 			return fmt.Errorf("akips: %s", e)
 		}
@@ -417,12 +401,8 @@ func (t *TimeSeriesResponse) ParseResponse(rd io.Reader) error {
 	}
 
 	sc := bufio.NewScanner(rd)
-	sc.Buffer(make([]byte, startBufSize), maxBufSize)
 
-	for {
-		if !sc.Scan() {
-			break
-		}
+	for sc.Scan() {
 		if e, ok := isError(sc.Text()); ok {
 			return fmt.Errorf("akips: %s", e)
 		}
@@ -493,13 +473,8 @@ func (p *GenericResponse) ParseResponse(rd io.Reader) error {
 	res := GenericResponse{}
 
 	sc := bufio.NewScanner(rd)
-	sc.Buffer(make([]byte, startBufSize), maxBufSize)
 
-	for {
-		if !sc.Scan() {
-			break
-		}
-
+	for sc.Scan() {
 		if e, ok := isError(sc.Text()); ok {
 			return fmt.Errorf("akips: %s", e)
 		}
@@ -534,14 +509,19 @@ func (p *GenericResponse) ParseResponse(rd io.Reader) error {
 	return nil
 }
 
-type DumpResponse []byte
+type TestResponse struct{}
 
-func (d *DumpResponse) ParseResponse(rd io.Reader) error {
-	buf, err := ioutil.ReadAll(rd)
-	if err != nil {
+func (t TestResponse) ParseResponse(rd io.Reader) error {
+	sc := bufio.NewScanner(rd)
+
+	for sc.Scan() {
+		if e, ok := isError(sc.Text()); ok {
+			return fmt.Errorf("akips: %s", e)
+		}
+	}
+	if err := sc.Err(); err != nil {
 		return err
 	}
-	*d = buf
 
 	return nil
 }

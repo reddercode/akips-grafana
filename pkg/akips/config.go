@@ -2,6 +2,7 @@ package akips
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
@@ -36,20 +37,26 @@ func (c *Config) NewRequest(ctx context.Context, method, endpointPath string, va
 	}
 	u.Path = path.Join(u.Path, endpointPath)
 
-	if method == "PUT" || method == "POST" {
-		data := values.Encode()
-		req, err := http.NewRequestWithContext(ctx, method, u.String(), strings.NewReader(data))
-		if err != nil {
-			return nil, err
+	var body io.Reader
+	if len(values) != 0 {
+		if method == "PUT" || method == "POST" {
+			data := values.Encode()
+			body = strings.NewReader(data)
+		} else {
+			q := u.Query()
+			for k, v := range values {
+				q[k] = v
+			}
+			u.RawQuery = q.Encode()
 		}
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+	if body != nil {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		return req, nil
 	}
 
-	q := u.Query()
-	for k, v := range values {
-		q[k] = v
-	}
-	u.RawQuery = q.Encode()
-	return http.NewRequestWithContext(ctx, method, u.String(), nil)
+	return req, nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 
@@ -30,6 +31,12 @@ type datasourceQueryData struct {
 	Query        string `json:"query"`
 }
 
+type datasourceQuery struct {
+	req   *datasource.DatasourceRequest
+	query *datasource.Query
+	data  *datasourceQueryData
+}
+
 type AKIPSDatasource struct {
 	plugin.NetRPCUnsupportedPlugin
 	logger hclog.Logger
@@ -50,23 +57,13 @@ func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.Datasource
 			return nil, fmt.Errorf("akips-datasource: %v", err)
 		}
 
-		var (
-			result *datasource.QueryResult
-			err    error
-		)
-		switch data.Type {
-		case queryTestDatasource:
-			result, err = ds.queryTestDatasource(ctx, req, q, &data, &akipsConfig)
-
-		case queryAnnotation:
-			result, err = ds.queryAnnotation(ctx, req, q, &data, &akipsConfig)
-
-		case queryTable:
-			result, err = ds.queryTable(ctx, req, q, &data, &akipsConfig)
-
-		default:
-			result, err = ds.queryTimeSeries(ctx, req, q, &data, &akipsConfig)
+		parsedQuery := datasourceQuery{
+			data:  &data,
+			req:   req,
+			query: q,
 		}
+
+		result, err := ds.doQuery(ctx, &parsedQuery, &akipsConfig)
 		if err != nil {
 			return nil, fmt.Errorf("akips-datasource: %v", err)
 		}
@@ -78,49 +75,64 @@ func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.Datasource
 	return &response, nil
 }
 
-func (ds *AKIPSDatasource) queryTestDatasource(ctx context.Context,
-	req *datasource.DatasourceRequest,
-	query *datasource.Query,
-	data *datasourceQueryData,
-	clientConfig *akips.Config) (*datasource.QueryResult, error) {
-
-	// Mock
-	return &datasource.QueryResult{
-		Error: "some wired shit",
-	}, nil
-}
-
-func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context,
-	req *datasource.DatasourceRequest,
-	query *datasource.Query,
-	data *datasourceQueryData,
-	clientConfig *akips.Config) (*datasource.QueryResult, error) {
-
+func (ds *AKIPSDatasource) doQuery(ctx context.Context, query *datasourceQuery, clientConfig *akips.Config) (*datasource.QueryResult, error) {
 	client := clientConfig.Client()
-	akipsReq, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{
-		"cmds": []string{data.Query},
-	})
+
+	var values url.Values
+	if query.data.Query != "" {
+		values = url.Values{"cmds": []string{query.data.Query}}
+	}
+	akipsReq, err := clientConfig.NewRequest(ctx, "GET", "/api-db", values)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := client.Do(akipsReq)
 	if err != nil {
+		// The front end will get 500
 		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode/100 != 2 {
-		return nil, fmt.Errorf("akips-datasource: %s", res.Status)
+		// Pass the message to the front end
+		return &datasource.QueryResult{
+			Error: res.Status,
+		}, nil
+	}
+
+	if values == nil {
+		// No commands was issued, just a test
+		var akipsResponse akips.TestResponse
+		if err := akipsResponse.ParseResponse(res.Body); err != nil {
+			// Pass the message to the front end
+			return &datasource.QueryResult{
+				Error: err.Error(),
+			}, nil
+		}
+		return &datasource.QueryResult{}, nil
 	}
 
 	var akipsResponse akips.GenericResponse
 	if err := akipsResponse.ParseResponse(res.Body); err != nil {
-		return nil, err
+		// Pass the message to the front end
+		return &datasource.QueryResult{
+			Error: err.Error(),
+		}, nil
 	}
 
-	series := make([]*datasource.TimeSeries, len(akipsResponse))
-	for tsCnt, elem := range akipsResponse {
+	switch query.data.Type {
+	case queryTable:
+		return ds.processTable(akipsResponse, query)
+
+	default:
+		return ds.processTimeSeries(akipsResponse, query)
+	}
+}
+
+func (ds *AKIPSDatasource) processTimeSeries(response akips.GenericResponse, query *datasourceQuery) (*datasource.QueryResult, error) {
+	series := make([]*datasource.TimeSeries, len(response))
+	for tsCnt, elem := range response {
 		var name string
 		switch {
 		case elem.Attribute != "":
@@ -137,10 +149,13 @@ func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context,
 			if d == 0 {
 				d = 1
 			}
-			delta := float64(req.TimeRange.ToEpochMs-req.TimeRange.FromEpochMs) / float64(d)
-			timestamp := float64(req.TimeRange.FromEpochMs)
+			delta := float64(query.req.TimeRange.ToEpochMs-query.req.TimeRange.FromEpochMs) / float64(d)
+			timestamp := float64(query.req.TimeRange.FromEpochMs)
 			for i, v := range elem.Values {
-				fv, _ := strconv.ParseFloat(v, 64)
+				fv, err := strconv.ParseFloat(v, 64)
+				if err != nil {
+					fv = math.NaN()
+				}
 				points[i] = &datasource.Point{
 					Timestamp: int64(timestamp),
 					Value:     fv,
@@ -160,50 +175,14 @@ func (ds *AKIPSDatasource) queryTimeSeries(ctx context.Context,
 	}, nil
 }
 
-func (ds *AKIPSDatasource) queryAnnotation(ctx context.Context,
-	req *datasource.DatasourceRequest,
-	query *datasource.Query,
-	data *datasourceQueryData,
-	clientConfig *akips.Config) (*datasource.QueryResult, error) {
-	return &datasource.QueryResult{}, nil
-}
-
-func (ds *AKIPSDatasource) queryTable(ctx context.Context,
-	req *datasource.DatasourceRequest,
-	query *datasource.Query,
-	data *datasourceQueryData,
-	clientConfig *akips.Config) (*datasource.QueryResult, error) {
-
-	client := clientConfig.Client()
-	akipsReq, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{
-		"cmds": []string{data.Query},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := client.Do(akipsReq)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode/100 != 2 {
-		return nil, fmt.Errorf("akips-datasource: %s", res.Status)
-	}
-
-	var akipsResponse akips.GenericResponse
-	if err := akipsResponse.ParseResponse(res.Body); err != nil {
-		return nil, err
-	}
-
+func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *datasourceQuery) (*datasource.QueryResult, error) {
 	var (
 		children  bool
 		attrs     bool
 		valuesNum int
 	)
-	rows := make([]*datasource.TableRow, len(akipsResponse))
-	for i, elem := range akipsResponse {
+	rows := make([]*datasource.TableRow, len(response))
+	for i, elem := range response {
 		values := []*datasource.RowValue{
 			&datasource.RowValue{
 				Kind:        datasource.RowValue_TYPE_STRING,
@@ -255,7 +234,7 @@ func (ds *AKIPSDatasource) queryTable(ctx context.Context,
 	}
 	for i := 0; i < valuesNum; i++ {
 		columns = append(columns, &datasource.TableColumn{
-			Name: fmt.Sprintf("Value %d", i),
+			Name: fmt.Sprintf("Value[%d]", i),
 		})
 	}
 
