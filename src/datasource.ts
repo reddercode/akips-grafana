@@ -8,14 +8,14 @@ import {
   ScopedVars,
   MutableDataFrame,
   FieldType,
-  DataFrameDTO,
   MetricFindValue,
+  FieldDTO,
 } from '@grafana/data';
-import { TSDBQuery, TSDBRequest, QueryResults, TimeSeries } from './types';
+import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
 
-export class DataSource extends DataSourceApi<TSDBQuery> {
+export class DataSource extends DataSourceApi<Query> {
   private static AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-  private static unitSuffixes: { [key: string]: string } = {
+  private static UNIT_SUFFIXES: { [key: string]: string } = {
     Octets: 'bytes',
     BitRate: 'bps',
     Util: 'percent',
@@ -30,7 +30,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
    * Test & verify datasource settings & connection details
    */
   async testDatasource() {
-    const q: TSDBQuery = {
+    const q: Query = {
       datasourceId: this.id,
       refId: 'testDatasource',
     };
@@ -56,12 +56,12 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   /**
    * Convert a query to a simple text string
    */
-  getQueryDisplayText(query: TSDBQuery): string {
+  getQueryDisplayText(query: Query): string {
     return query.query || query.rawQuery || '';
   }
 
   // Use template engine to build AKiPS queries
-  getLocalVars(query: DataQueryRequest<TSDBQuery>): ScopedVars {
+  getLocalVars(query: DataQueryRequest<Query>): ScopedVars {
     const intervalSec = Math.floor(query.intervalMs / 1000);
     const fromSec = query.range.from.unix();
     const fromFmt = query.range.from.format(DataSource.AKIPS_TIME_FORMAT);
@@ -93,9 +93,9 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   guessUnit(name: string): string | undefined {
-    for (const s in DataSource.unitSuffixes) {
+    for (const s in DataSource.UNIT_SUFFIXES) {
       if (name.endsWith(s)) {
-        return DataSource.unitSuffixes[s];
+        return DataSource.UNIT_SUFFIXES[s];
       }
     }
     return undefined;
@@ -104,9 +104,8 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   /**
    * Query for data, and optionally stream results
    */
-  async query(request: DataQueryRequest<TSDBQuery>): Promise<DataQueryResponse> {
-    console.log(request);
-    const req: DataQueryRequest<TSDBQuery> = {
+  async query(request: DataQueryRequest<Query>): Promise<DataQueryResponse> {
+    const req: DataQueryRequest<Query> = {
       ...request,
       // interval must be a multiple of 60 sec --eugene
       intervalMs: Math.ceil(request.intervalMs / 60000) * 60000,
@@ -114,12 +113,13 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
 
     const queries = req.targets
       .filter(q => !q.hide)
-      .map<TSDBQuery>(q => ({
-        type: 'timeSeriesQuery',
+      .map<Query>(q => ({
+        type: q.type || 'timeSeriesQuery',
         refId: q.refId,
         key: q.key,
         datasourceId: this.id,
         rawQuery: q.rawQuery,
+        singleValue: q.singleValue,
         query: this.templateSrv.replace(q.rawQuery, { ...req.scopedVars, ...this.getLocalVars(req) }),
         intervalMs: req.intervalMs,
         maxDataPoints: req.maxDataPoints,
@@ -140,32 +140,46 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
     });
 
     const result = Object.values(data.results)
-      .filter(r => r.series !== null && r.series !== undefined)
+      .filter(r => r.series || r.tables)
       .map<MutableDataFrame>(
         r =>
-          new MutableDataFrame({
-            refId: r.refId,
-            fields: [
-              ...r.series?.map(s => ({
-                type: FieldType.number,
-                name: s.name || '',
-                config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
-                values: s.points?.map(v => v[0]),
-              })),
-              // The first time field only is used anyway --eugene
-              ...((s: TimeSeries | undefined) =>
-                s
-                  ? [
-                      {
-                        type: FieldType.time,
-                        name: 'Time',
-                        config: { unit: 'dateTimeAsIso' },
-                        values: s.points?.map(v => v[1]),
-                      },
-                    ]
-                  : [])(r.series?.[0]),
-            ],
-          } as DataFrameDTO)
+          new MutableDataFrame(
+            r.series
+              ? {
+                  // Time series response
+                  refId: r.refId,
+                  fields: [
+                    ...r.series?.map(s => ({
+                      type: FieldType.number,
+                      name: s.name || '',
+                      config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
+                      values: s.points?.map(v => v[0]),
+                    })),
+                    // The first time field only is used anyway --eugene
+                    ...((s: TimeSeries | undefined) =>
+                      s
+                        ? [
+                            {
+                              type: FieldType.time,
+                              name: 'Time',
+                              config: { unit: 'dateTimeAsIso' },
+                              values: s.points?.map(v => v[1]),
+                            },
+                          ]
+                        : [])(r.series?.[0]),
+                  ],
+                }
+              : {
+                  // Table response
+                  refId: r.refId,
+                  fields:
+                    r.tables?.[0].columns?.map<FieldDTO>((c, cidx) => ({
+                      type: FieldType.string,
+                      name: c.text,
+                      values: r.tables?.[0].rows?.map(r => r[cidx]),
+                    })) || [],
+                }
+          )
       );
 
     return { data: result };
@@ -175,7 +189,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
    * Can be optionally implemented to allow datasource to be a source of annotations for dashboard. To be visible
    * in the annotation editor `annotations` capability also needs to be enabled in plugin.json.
    */
-  async annotationQuery(request: AnnotationQueryRequest<TSDBQuery>): Promise<AnnotationEvent[]> {
+  async annotationQuery(request: AnnotationQueryRequest<Query>): Promise<AnnotationEvent[]> {
     // TODO
     return [];
   }
@@ -185,7 +199,7 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
    */
   async metricFindQuery(request: string): Promise<MetricFindValue[]> {
     const r = this.templateSrv.replace(request, {});
-    const q: TSDBQuery = {
+    const q: Query = {
       datasourceId: this.id,
       type: 'tableQuery',
       refId: 'tableQuery',
@@ -221,8 +235,8 @@ export class DataSource extends DataSourceApi<TSDBQuery> {
   }
 
   // Used in explore mode
-  interpolateVariablesInQueries(queries: TSDBQuery[]): TSDBQuery[] {
-    return queries.map<TSDBQuery>(q => ({
+  interpolateVariablesInQueries(queries: Query[]): Query[] {
+    return queries.map<Query>(q => ({
       ...q,
       datasource: this.name,
       query: this.templateSrv.replace(q.rawQuery, {}),

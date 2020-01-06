@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/grafana/grafana-plugin-model/go/datasource"
 	hclog "github.com/hashicorp/go-hclog"
 	plugin "github.com/hashicorp/go-plugin"
@@ -29,6 +28,7 @@ type datasourceQueryData struct {
 	DataSourceID int    `json:"datasourceId"`
 	RawQuery     string `json:"rawQuery"`
 	Query        string `json:"query"`
+	SingleValue  bool   `json:"singleValue"`
 }
 
 type datasourceQuery struct {
@@ -43,8 +43,6 @@ type AKIPSDatasource struct {
 }
 
 func (ds *AKIPSDatasource) Query(ctx context.Context, req *datasource.DatasourceRequest) (*datasource.DatasourceResponse, error) {
-	ds.logger.Debug(spew.Sdump(req))
-
 	akipsConfig := akips.Config{
 		URL:        req.Datasource.Url,
 		AuthMethod: akips.PasswordAuth(req.Datasource.DecryptedSecureJsonData["password"]),
@@ -143,25 +141,41 @@ func (ds *AKIPSDatasource) processTimeSeries(response akips.GenericResponse, que
 			name = elem.Parent
 		}
 
-		points := make([]*datasource.Point, len(elem.Values))
+		var points []*datasource.Point
 		if len(elem.Values) != 0 {
-			d := len(elem.Values) - 1
-			if d == 0 {
-				d = 1
-			}
-			delta := float64(query.req.TimeRange.ToEpochMs-query.req.TimeRange.FromEpochMs) / float64(d)
-			timestamp := float64(query.req.TimeRange.FromEpochMs)
-			for i, v := range elem.Values {
-				fv, err := strconv.ParseFloat(v, 64)
+			if query.data.SingleValue {
+				fv, err := strconv.ParseFloat(elem.Values[0], 64)
 				if err != nil {
 					fv = math.NaN()
 				}
-				points[i] = &datasource.Point{
-					Timestamp: int64(timestamp),
-					Value:     fv,
+				points = []*datasource.Point{
+					&datasource.Point{
+						Timestamp: query.req.TimeRange.ToEpochMs,
+						Value:     fv,
+					},
 				}
-				timestamp += delta
+			} else {
+				points = make([]*datasource.Point, len(elem.Values))
+				d := len(elem.Values) - 1
+				if d == 0 {
+					d = 1
+				}
+				delta := float64(query.req.TimeRange.ToEpochMs-query.req.TimeRange.FromEpochMs) / float64(d)
+				timestamp := float64(query.req.TimeRange.FromEpochMs)
+				for i, v := range elem.Values {
+					fv, err := strconv.ParseFloat(v, 64)
+					if err != nil {
+						fv = math.NaN()
+					}
+					points[i] = &datasource.Point{
+						Timestamp: int64(timestamp),
+						Value:     fv,
+					}
+					timestamp += delta
+				}
 			}
+		} else {
+			points = make([]*datasource.Point, 0)
 		}
 
 		series[tsCnt] = &datasource.TimeSeries{
@@ -203,14 +217,27 @@ func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *d
 				StringValue: elem.Attribute,
 			})
 		}
-		for _, v := range elem.Values {
-			values = append(values, &datasource.RowValue{
-				Kind:        datasource.RowValue_TYPE_STRING,
-				StringValue: v,
-			})
-		}
-		if len(elem.Values) > valuesNum {
-			valuesNum = len(elem.Values)
+
+		if len(elem.Values) != 0 {
+			if query.data.SingleValue {
+				values = append(values, &datasource.RowValue{
+					Kind:        datasource.RowValue_TYPE_STRING,
+					StringValue: elem.Values[0],
+				})
+				if valuesNum == 0 {
+					valuesNum = 1
+				}
+			} else {
+				for _, v := range elem.Values {
+					values = append(values, &datasource.RowValue{
+						Kind:        datasource.RowValue_TYPE_STRING,
+						StringValue: v,
+					})
+				}
+				if len(elem.Values) > valuesNum {
+					valuesNum = len(elem.Values)
+				}
+			}
 		}
 		rows[i] = &datasource.TableRow{
 			Values: values,

@@ -1,13 +1,13 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { QueryField, SlatePrism, Select } from '@grafana/ui';
+import { QueryField, SlatePrism, Select, Switch } from '@grafana/ui';
 import React from 'react';
 import Slate from 'slate';
 import Prism from 'prismjs';
 import { DataSource } from './datasource';
-import { TSDBQuery } from './types';
+import { Query, QueryType, QueryOptions } from './types';
 import syntax from './syntax';
 
-type Props = QueryEditorProps<DataSource, TSDBQuery>;
+type Props = QueryEditorProps<DataSource, Query>;
 
 interface State {
   syntaxLoaded: boolean;
@@ -17,13 +17,20 @@ interface State {
   selectedChild?: SelectableValue<string> | null;
   attributes?: Array<SelectableValue<string>> | null;
   selectedAttribute?: SelectableValue<string> | null;
+  queryType: SelectableValue<QueryType>;
 }
 
 export class QueryEditor extends React.PureComponent<Props, State> {
   plugins: Slate.Plugin[];
 
+  private static QUERY_TYPES: Array<SelectableValue<QueryType>> = [
+    { label: 'Time series', value: 'timeSeriesQuery' },
+    { label: 'Table', value: 'tableQuery' },
+  ];
+
   constructor(props: Props, context: React.Context<any>) {
     super(props, context);
+    const { query } = props;
 
     this.plugins = [
       SlatePrism({
@@ -34,67 +41,92 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
     this.state = {
       syntaxLoaded: false,
+      queryType: QueryEditor.QUERY_TYPES.find(option => option.value === query.type) || QueryEditor.QUERY_TYPES[0],
     };
   }
 
   componentDidMount() {
+    const { query } = this.props;
+
     Prism.languages['akips'] = syntax;
     this.setState({ syntaxLoaded: true });
+
     this.updateDevices();
+    if (query.device) {
+      this.updateChildren(query.device);
+      if (query.child) {
+        this.updateAttributes(query.device, query.child);
+      }
+    }
   }
 
   async updateDevices() {
-    const { datasource } = this.props;
+    const { datasource, query } = this.props;
     const result = (await datasource.metricFindQuery('mlist device *')).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
+
     this.setState({
       devices: result,
-      selectedDevice: null,
-      children: null,
-      selectedChild: null,
-      attributes: null,
-      selectedAttribute: null,
     });
+
+    if (query.device) {
+      const selected = result.find(option => option.value === query.device);
+      this.setState({
+        selectedDevice: selected || null,
+      });
+    }
   }
 
   async updateChildren(dev: string) {
-    const { datasource } = this.props;
+    const { datasource, query } = this.props;
     const result = (await datasource.metricFindQuery(`mlist * "${dev}" *`)).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
+
     this.setState({
       children: result,
-      selectedChild: null,
-      attributes: null,
-      selectedAttribute: null,
     });
+
+    if (query.child) {
+      const selected = result.find(option => option.value === query.child);
+      this.setState({
+        selectedChild: selected || null,
+      });
+    }
   }
 
   async updateAttributes(dev: string, child: string) {
-    const { datasource } = this.props;
+    const { datasource, query } = this.props;
     const result = (await datasource.metricFindQuery(`mlist * "${dev}" "${child}" *`)).map<SelectableValue<string>>(value => ({
       label: value.text,
       value: value.text,
     }));
+
     this.setState({
       attributes: result,
-      selectedAttribute: null,
     });
+
+    if (query.attribute) {
+      const selected = result.find(option => option.value === query.attribute);
+      this.setState({
+        selectedAttribute: selected || null,
+      });
+    }
   }
 
-  onChangeQuery = (value: string, override?: boolean) => {
+  changeQuery(values: QueryOptions, override?: boolean) {
     const { query, onChange, onRunQuery } = this.props;
     if (onChange) {
-      const q: TSDBQuery = { ...query, rawQuery: value };
+      const q: Query = { ...query, ...values };
       onChange(q);
       if (override && onRunQuery) {
         onRunQuery();
       }
     }
-  };
+  }
 
   onChangeDevice = (option: SelectableValue<string>) => {
     this.setState(
@@ -106,8 +138,8 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.onChangeQuery(this.formatDefaultQuery());
-        if (option.value !== undefined) {
+        this.changeQuery({ rawQuery: this.formatDefaultQuery(), device: option.value, child: undefined, attribute: undefined });
+        if (option.value) {
           this.updateChildren(option.value);
         }
       }
@@ -122,8 +154,8 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         selectedAttribute: null,
       },
       () => {
-        this.onChangeQuery(this.formatDefaultQuery(), true);
-        if (option.value !== undefined && this.state.selectedDevice?.value !== undefined) {
+        this.changeQuery({ rawQuery: this.formatDefaultQuery(), child: option.value, attribute: undefined }, true);
+        if (option.value && this.state.selectedDevice?.value) {
           this.updateAttributes(this.state.selectedDevice.value, option.value);
         }
       }
@@ -135,8 +167,19 @@ export class QueryEditor extends React.PureComponent<Props, State> {
       {
         selectedAttribute: option,
       },
-      () => this.onChangeQuery(this.formatDefaultQuery(), true)
+      () => this.changeQuery({ rawQuery: this.formatDefaultQuery(), attribute: option.value }, true)
     );
+  };
+
+  onChangeType = (option: SelectableValue<QueryType>) => {
+    this.setState({ queryType: option }, () => this.changeQuery({ type: option.value }, true));
+  };
+
+  onChangeSingle = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
+    if (evt) {
+      const value = evt.currentTarget.checked;
+      this.changeQuery({ singleValue: value }, true);
+    }
   };
 
   formatDefaultQuery(): string {
@@ -144,6 +187,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
     const dev = selectedDevice?.value || 'SELECT_DEVICE';
     const iface = selectedChild?.value || 'SELECT_INTERFACE';
     const attr = selectedAttribute?.value || '/InOctets|OutOctets/';
+
     return `series interval total $\{__interval_sec\} time "from $\{__from_sec\} to $\{__to_sec\}" * "${dev}" "${iface}" "${attr}"`;
   }
 
@@ -185,12 +229,17 @@ export class QueryEditor extends React.PureComponent<Props, State> {
           <QueryField
             query={rawQuery}
             additionalPlugins={this.plugins}
-            onChange={this.onChangeQuery}
+            onChange={value => this.changeQuery({ rawQuery: value })}
             onRunQuery={this.props.onRunQuery}
             placeholder="Enter a AKiPS query"
             portalOrigin="akips"
             syntaxLoaded={this.state.syntaxLoaded}
           />
+        </div>
+        <div className="gf-form">
+          <label className="gf-form-label">Format</label>
+          <Select isSearchable={false} options={QueryEditor.QUERY_TYPES} onChange={this.onChangeType} value={this.state.queryType} />
+          <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
         </div>
       </div>
     );

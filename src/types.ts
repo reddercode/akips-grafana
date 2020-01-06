@@ -1,18 +1,26 @@
 import { DataQuery } from '@grafana/data';
 
-type TSDBQueryType = 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
+export type QueryType = 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
 
-export interface TSDBQuery extends DataQuery {
-  datasourceId: number;
-  type?: TSDBQueryType;
+export interface QueryOptions {
+  type?: QueryType;
   rawQuery?: string; // keep raw query just for convenience --eugene
   query?: string;
+  singleValue?: boolean;
   intervalMs?: number;
   maxDataPoints?: number;
+  // Never exposed to backend, just to keep editor state
+  device?: string;
+  child?: string;
+  attribute?: string;
+}
+
+export interface Query extends DataQuery, QueryOptions {
+  datasourceId: number;
 }
 
 export interface TSDBRequest {
-  queries: TSDBQuery[];
+  queries: Query[];
   from?: string;
   to?: string;
 }
