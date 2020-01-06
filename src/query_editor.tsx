@@ -20,13 +20,13 @@ interface State {
   queryType: SelectableValue<QueryType>;
 }
 
+const QUERY_TYPES: Array<SelectableValue<QueryType>> = [
+  { label: 'Time series', value: 'timeSeriesQuery' },
+  { label: 'Table', value: 'tableQuery' },
+];
+
 export class QueryEditor extends React.PureComponent<Props, State> {
   plugins: Slate.Plugin[];
-
-  private static QUERY_TYPES: Array<SelectableValue<QueryType>> = [
-    { label: 'Time series', value: 'timeSeriesQuery' },
-    { label: 'Table', value: 'tableQuery' },
-  ];
 
   constructor(props: Props, context: React.Context<any>) {
     super(props, context);
@@ -41,7 +41,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
 
     this.state = {
       syntaxLoaded: false,
-      queryType: QueryEditor.QUERY_TYPES.find(option => option.value === query.type) || QueryEditor.QUERY_TYPES[0],
+      queryType: QUERY_TYPES.find(option => option.value === query.type) || QUERY_TYPES[0],
     };
   }
 
@@ -238,7 +238,7 @@ export class QueryEditor extends React.PureComponent<Props, State> {
         </div>
         <div className="gf-form">
           <label className="gf-form-label">Format</label>
-          <Select isSearchable={false} options={QueryEditor.QUERY_TYPES} onChange={this.onChangeType} value={this.state.queryType} />
+          <Select isSearchable={false} options={QUERY_TYPES} onChange={this.onChangeType} value={this.state.queryType} />
           <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
           {this.state.queryType?.value === 'tableQuery' && (
             <Switch label="Omit parents" checked={query.omitParents || false} onChange={this.onChangeOmitParents} />
