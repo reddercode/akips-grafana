@@ -278,7 +278,7 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
               onChange={value => this.changeQuery({ rawQuery: value })}
               onRunQuery={this.props.onRunQuery}
               onBlur={this.props.onBlur}
-              placeholder="Enter a AKiPS query"
+              placeholder="Enter an AKiPS query"
               portalOrigin="akips"
               syntaxLoaded={this.state.syntaxLoaded}
             />
