@@ -279,7 +279,7 @@ func (ds *AKIPSDatasource) processTable(response akips.GenericResponse, query *d
 	if valuesNum > 1 {
 		for i := 0; i < valuesNum; i++ {
 			columns = append(columns, &datasource.TableColumn{
-				Name: fmt.Sprintf("Value[%d]", i),
+				Name: fmt.Sprintf("Value #%d", i),
 			})
 		}
 	} else if valuesNum == 1 {

@@ -192,7 +192,7 @@ export class DataSource extends DataSourceApi<Query> {
                   refId: r.refId,
                   fields:
                     r.tables?.[0].columns?.map<FieldDTO>((c, cidx) => ({
-                      type: FieldType.string,
+                      type: c.text === 'Value' && cidx === 0 ? FieldType.number : FieldType.string,
                       name: c.text,
                       values: r.tables?.[0].rows?.map(r => r[cidx]),
                     })) || [],

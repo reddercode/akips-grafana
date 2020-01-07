@@ -4,16 +4,16 @@ export type QueryType = 'annotationQuery' | 'tableQuery' | 'timeSeriesQuery';
 
 export interface QueryOptions {
   type?: QueryType;
-  rawQuery?: string;
   query?: string;
   singleValue?: boolean;
+  omitParents?: boolean;
   intervalMs?: number;
   maxDataPoints?: number;
   // Never exposed to backend, just to keep editor state
+  rawQuery?: string;
   device?: string;
   child?: string;
   attribute?: string;
-  omitParents?: boolean;
 }
 
 export interface Query extends DataQuery, QueryOptions {
