@@ -3,8 +3,6 @@ module github.com/reddercode/akips-grafana
 go 1.13
 
 require (
-	github.com/bitly/go-simplejson v0.5.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/grafana/grafana-plugin-model v0.0.0-20190930120109-1fc953a61fb4
 	github.com/hashicorp/go-hclog v0.10.0
 	github.com/hashicorp/go-plugin v1.0.1
