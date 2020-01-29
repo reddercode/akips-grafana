@@ -23,3 +23,8 @@ jobs:
         run: make backend-plugin-ci
       - name: Bundle plugin
         run: npx grafana-toolkit plugin:ci-package
+      - uses: actions/upload-artifact@v1
+        if: success()
+        with:
+          name: package
+          path: ./ci/packages
