@@ -14,8 +14,6 @@ jobs:
         with:
           node-version: 13.x
       - uses: actions/checkout@v2
-      - name: Build backend
-        run: make backend
       - run: npm install
       - name: Build plugin frontend
         run: npx grafana-toolkit plugin:ci-build
