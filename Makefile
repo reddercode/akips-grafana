@@ -1,28 +1,46 @@
-GOOS = $(shell go env GOOS)
-GOARCH = $(shell go env GOARCH)
-TARGET = build
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
-GOSRC := $(shell find . -name '*.go')
+ifeq ($(GOOS),windows)
+	EXT = .exe
+endif
 
-BIN := dist/akips-plugin_$(GOOS)_$(GOARCH)
-PLUGIN := dist/module.js
-TARGETS = \
-	build \
-	test  \
-	dev   \
-	watch \
+BUILD_MODE = build
+DIST = ./dist
 
-.PHONY: all $(TARGETS)
+GO_SRC = \
+	./pkg/plugin.go \
+	./pkg/datasource.go \
+	./pkg/akips/config.go \
+	./pkg/akips/auth.go \
+	./pkg/akips/response.go
+
+PLUGIN_SRC = src/*.ts src/*.tsx src/*.json
+
+PLUGIN_BUILD_MODES = build dev
+
+DIST_BIN = \
+	$(DIST)/akips-plugin_linux_amd64 \
+	$(DIST)/akips-plugin_darwin_amd64 \
+	$(DIST)/akips-plugin_windows_amd64.exe
+
+BIN = $(DIST)/akips-plugin_$(GOOS)_$(GOARCH)$(EXT)
+PLUGIN = $(DIST)/module.js
+
+.PHONY: all $(PLUGIN_BUILD_MODES) backend backend-plugin-ci
 
 all: $(PLUGIN) $(BIN)
 
-$(BIN): $(GOSRC)
-	go build -i -o $@ ./pkg
+$(DIST)/akips-plugin_%: $(GO_SRC)
+	GOOS=$(word 1,$(subst _, ,$(*:.exe=))) GOARCH=$(word 2,$(subst _, ,$(*:.exe=))) go build -i -o $@ ./pkg
 
-$(PLUGIN): src/*.ts src/*.tsx src/*.json
-	npm run-script $(TARGET)
+$(PLUGIN): $(PLUGIN_SRC)
+	npx grafana-toolkit plugin:$(BUILD_MODE)
 
-$(TARGETS):
-	$(MAKE) TARGET=$@
+$(PLUGIN_BUILD_MODES):
+	$(MAKE) BUILD_MODE=$@
 
+backend-plugin-ci:
+	$(MAKE) DIST=./ci/jobs/build_plugin/dist backend
 
+backend: $(DIST_BIN)

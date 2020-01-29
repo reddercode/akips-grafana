@@ -1,0 +1,25 @@
+name: Build plugin
+on: [push]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v1
+        id: go
+        with:
+          go-version: 1.13
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 13.x
+      - uses: actions/checkout@v2
+      - name: Build backend
+        run: make backend
+      - run: npm install
+      - name: Build plugin frontend
+        run: npx grafana-toolkit plugin:ci-build
+      - name: Build plugin backend
+        run: make backend-plugin-ci
+      - name: Bundle plugin
+        run: npx grafana-toolkit plugin:ci-package
