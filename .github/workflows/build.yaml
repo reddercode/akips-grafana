@@ -59,8 +59,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ join(steps.package_name.outputs.path, '.sha1') }}
-          asset_name: ${{ join(steps.package_name.outputs.name, '.sha1') }}
+          asset_path: ${{ steps.package_name.outputs.path }}.sha1
+          asset_name: ${{ steps.package_name.outputs.name }}.sha1
           asset_content_type: text/plain
       - uses: actions/upload-release-asset@v1.0.1
         env:
