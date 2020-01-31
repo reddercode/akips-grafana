@@ -1,6 +1,6 @@
 {
 	"name": "akips-datasource",
-	"version": "1.0.0-test.1",
+	"version": "1.0.0-test.2",
 	"description": "AKiPS Data Source",
 	"scripts": {
 		"build": "grafana-toolkit plugin:build",
