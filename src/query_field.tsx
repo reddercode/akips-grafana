@@ -1,5 +1,5 @@
 import { ExploreQueryFieldProps, SelectableValue } from '@grafana/data';
-import { QueryField, SlatePrism, Select, Switch } from '@grafana/ui';
+import { QueryField, SlatePrism, Select, Switch, Input } from '@grafana/ui';
 import React from 'react';
 import Slate from 'slate';
 import Prism from 'prismjs';
@@ -217,6 +217,13 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     }
   };
 
+  onChangeLegendRegex = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
+    if (evt) {
+      const value = evt.currentTarget.checked;
+      this.changeQuery({ legendRegex: value }, true);
+    }
+  };
+
   extOptions(): JSX.Element | null {
     if (!this.props.extOptions) {
       return null;
@@ -225,8 +232,18 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     return (
       <>
         <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
-        {this.state.queryType?.value === 'tableQuery' && (
+        {this.state.queryType?.value === 'tableQuery' ? (
           <Switch label="Omit parents" checked={query.omitParents || false} onChange={this.onChangeOmitParents} />
+        ) : (
+          <>
+            <label className="gf-form-label">Legend</label>
+            <Input
+              value={query.legendFormat}
+              onChange={event => this.changeQuery({ legendFormat: event.currentTarget.value }, true)}
+              placeholder={query.legendRegex ? 'Enter a regex' : ''}
+            />
+            <Switch label="Regex" checked={query.legendRegex || false} onChange={this.onChangeLegendRegex} />
+          </>
         )}
       </>
     );

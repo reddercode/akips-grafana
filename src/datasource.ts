@@ -10,6 +10,7 @@ import {
   FieldType,
   MetricFindValue,
   FieldDTO,
+  stringToJsRegex,
 } from '@grafana/data';
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
 
@@ -102,6 +103,36 @@ export class DataSource extends DataSourceApi<Query> {
     return query.query || query.rawQuery || '';
   }
 
+  private formatLegend(req: DataQueryRequest<Query>, q: Query, name: string): string {
+    if (!q.legendFormat) {
+      return name;
+    }
+
+    if (q.legendRegex) {
+      try {
+        const re = stringToJsRegex(this.templateSrv.replace(q.legendFormat, {}, 'regex'));
+        const matches = re.exec(name);
+        if (matches && matches.length > 1) {
+          return matches[1];
+        } else {
+          return name;
+        }
+      } catch {
+        return name;
+      }
+    }
+
+    const sv: ScopedVars = {
+      __metricName: {
+        text: name,
+        value: name,
+      },
+      ...req.scopedVars,
+      ...getLocalVars(req, q),
+    };
+    return this.templateSrv.replace(q.legendFormat, sv);
+  }
+
   /**
    * Query for data, and optionally stream results
    */
@@ -112,30 +143,34 @@ export class DataSource extends DataSourceApi<Query> {
       intervalMs: Math.ceil(request.intervalMs / 60000) * 60000,
     };
 
-    const queries = req.targets
-      .filter(q => !q.hide)
-      .map<Query>(q => ({
-        datasourceId: this.id,
-        type: q.type || 'timeSeriesQuery',
-        refId: q.refId,
-        key: q.key,
-        singleValue: q.singleValue,
-        omitParents: q.omitParents,
-        query: this.templateSrv.replace(q.rawQuery || DataSource.DEFAULT_QUERY, {
-          ...req.scopedVars,
-          ...getLocalVars(req, q),
-        }),
-        intervalMs: req.intervalMs,
-        maxDataPoints: req.maxDataPoints,
-      }));
-
-    if (queries.length === 0) {
+    const targets = req.targets.filter(q => !q.hide);
+    if (targets.length === 0) {
       return { data: [] };
     }
 
+    const queries: { [refId: string]: Query } = Object.assign(
+      {},
+      ...targets.map<{ [refId: string]: Query }>(q => ({ [q.refId]: q }))
+    );
+
+    const tsdbQueries = targets.map<Query>(q => ({
+      datasourceId: this.id,
+      type: q.type || 'timeSeriesQuery',
+      refId: q.refId,
+      key: q.key,
+      singleValue: q.singleValue,
+      omitParents: q.omitParents,
+      query: this.templateSrv.replace(q.rawQuery || DataSource.DEFAULT_QUERY, {
+        ...req.scopedVars,
+        ...getLocalVars(req, q),
+      }),
+      intervalMs: req.intervalMs,
+      maxDataPoints: req.maxDataPoints,
+    }));
+
     const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({
       data: {
-        queries: queries,
+        queries: Object.values(tsdbQueries),
         from: req.range?.from.valueOf().toString(),
         to: req.range?.to.valueOf().toString(),
       } as TSDBRequest,
@@ -148,14 +183,14 @@ export class DataSource extends DataSourceApi<Query> {
       .map<MutableDataFrame>(
         r =>
           new MutableDataFrame(
-            r.series?.length
+            r.series?.length !== 0
               ? {
                   // Time series response
                   refId: r.refId,
                   fields: [
                     ...r.series?.map(s => ({
                       type: FieldType.number,
-                      name: s.name || '',
+                      name: this.formatLegend(req, queries[r.refId], s.name || ''),
                       values: s.points?.map(v => v[0]),
                     })),
                     // The first time field only is used anyway --eugene
