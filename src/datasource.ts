@@ -14,11 +14,6 @@ import {
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
 
 const AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-const UNIT_SUFFIXES: { [key: string]: string } = {
-  Octets: 'bytes',
-  BitRate: 'bps',
-  Util: 'percent',
-};
 
 // Use template engine to build AKiPS queries
 function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars {
@@ -107,15 +102,6 @@ export class DataSource extends DataSourceApi<Query> {
     return query.query || query.rawQuery || '';
   }
 
-  guessUnit(name: string): string | undefined {
-    for (const s in UNIT_SUFFIXES) {
-      if (name.endsWith(s)) {
-        return UNIT_SUFFIXES[s];
-      }
-    }
-    return undefined;
-  }
-
   /**
    * Query for data, and optionally stream results
    */
@@ -170,7 +156,6 @@ export class DataSource extends DataSourceApi<Query> {
                     ...r.series?.map(s => ({
                       type: FieldType.number,
                       name: s.name || '',
-                      config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
                       values: s.points?.map(v => v[0]),
                     })),
                     // The first time field only is used anyway --eugene
@@ -180,7 +165,6 @@ export class DataSource extends DataSourceApi<Query> {
                             {
                               type: FieldType.time,
                               name: 'Time',
-                              config: { unit: 'dateTimeAsIso' },
                               values: s.points?.map(v => v[1]),
                             },
                           ]
