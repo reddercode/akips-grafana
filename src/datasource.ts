@@ -19,6 +19,7 @@ const AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 // Use template engine to build AKiPS queries
 function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars {
   const intervalSec = Math.floor(query.intervalMs / 1000);
+  const intervalMin = intervalSec / 60;
   const fromSec = query.range.from.unix();
   const fromFmt = query.range.from.format(AKIPS_TIME_FORMAT);
   const toSec = query.range.to.unix();
@@ -28,6 +29,10 @@ function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars
     __interval_sec: {
       text: String(intervalSec),
       value: intervalSec,
+    },
+    __interval_min: {
+      text: String(intervalMin),
+      value: intervalMin,
     },
     __from_sec: {
       text: String(fromSec),
