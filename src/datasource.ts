@@ -13,26 +13,34 @@ import {
   stringToJsRegex,
 } from '@grafana/data';
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
+import { secondsToHms } from './utils';
 
 const AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const MIN_INTERVAL_MS = 60000;
 
 // Use template engine to build AKiPS queries
 function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars {
-  const intervalSec = Math.floor(query.intervalMs / 1000);
-  const intervalMin = intervalSec / 60;
-  const fromSec = query.range.from.unix();
-  const fromFmt = query.range.from.format(AKIPS_TIME_FORMAT);
-  const toSec = query.range.to.unix();
-  const toFmt = query.range.to.format(AKIPS_TIME_FORMAT);
+  const intervalMs = query.intervalMs || MIN_INTERVAL_MS;
+  const intervalSec = Math.round(intervalMs / 1000);
+  const fromSec = query.range?.from.unix();
+  const fromFmt = query.range?.from.format(AKIPS_TIME_FORMAT);
+  const toSec = query.range?.to.unix();
+  const toFmt = query.range?.to.format(AKIPS_TIME_FORMAT);
 
   return {
+    // Override
+    __interval: {
+      text: String(query.interval),
+      value: query.interval,
+    },
+    __interval_ms: {
+      text: String(intervalMs),
+      value: intervalMs,
+    },
+    // Custom variables
     __interval_sec: {
       text: String(intervalSec),
       value: intervalSec,
-    },
-    __interval_min: {
-      text: String(intervalMin),
-      value: intervalMin,
     },
     __from_sec: {
       text: String(fromSec),
@@ -68,6 +76,8 @@ function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars
 export class DataSource extends DataSourceApi<Query> {
   static DEFAULT_QUERY =
     'series interval total ${__interval_sec} time "from ${__from_sec} to ${__to_sec}" * "${__device}" "${__child}" "${__attribute}"';
+
+  interval = '1m';
 
   /** @ngInject */
   constructor(instanceSettings: DataSourceInstanceSettings, private backendSrv: any, private templateSrv: any) {
@@ -128,12 +138,12 @@ export class DataSource extends DataSourceApi<Query> {
     }
 
     const sv: ScopedVars = {
+      ...req.scopedVars,
+      ...getLocalVars(req, q),
       __metricName: {
         text: name,
         value: name,
       },
-      ...req.scopedVars,
-      ...getLocalVars(req, q),
     };
     return this.templateSrv.replace(q.legendFormat, sv);
   }
@@ -142,10 +152,12 @@ export class DataSource extends DataSourceApi<Query> {
    * Query for data, and optionally stream results
    */
   async query(request: DataQueryRequest<Query>): Promise<DataQueryResponse> {
+    // interval must be a multiple of 60 sec --eugene
+    const intervalMs = Math.ceil((request.intervalMs || MIN_INTERVAL_MS) / MIN_INTERVAL_MS) * MIN_INTERVAL_MS;
     const req: DataQueryRequest<Query> = {
       ...request,
-      // interval must be a multiple of 60 sec --eugene
-      intervalMs: Math.ceil(request.intervalMs / 60000) * 60000,
+      interval: secondsToHms(intervalMs / 1000),
+      intervalMs: intervalMs,
     };
 
     const targets = req.targets.filter(q => !q.hide);
@@ -158,20 +170,22 @@ export class DataSource extends DataSourceApi<Query> {
       ...targets.map<{ [refId: string]: Query }>(q => ({ [q.refId]: q }))
     );
 
-    const tsdbQueries = targets.map<Query>(q => ({
-      datasourceId: this.id,
-      type: q.type || 'timeSeriesQuery',
-      refId: q.refId,
-      key: q.key,
-      singleValue: q.singleValue,
-      omitParents: q.omitParents,
-      query: this.templateSrv.replace(q.rawQuery || DataSource.DEFAULT_QUERY, {
-        ...req.scopedVars,
-        ...getLocalVars(req, q),
-      }),
-      intervalMs: req.intervalMs,
-      maxDataPoints: req.maxDataPoints,
-    }));
+    const tsdbQueries = targets.map<Query>(
+      (q: Query): Query => ({
+        datasourceId: this.id,
+        type: q.type || 'timeSeriesQuery',
+        refId: q.refId,
+        key: q.key,
+        singleValue: q.singleValue,
+        omitParents: q.omitParents,
+        query: this.templateSrv.replace(q.rawQuery || DataSource.DEFAULT_QUERY, {
+          ...req.scopedVars,
+          ...getLocalVars(req, q),
+        }),
+        intervalMs: req.intervalMs,
+        maxDataPoints: req.maxDataPoints,
+      })
+    );
 
     const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({
       data: {
