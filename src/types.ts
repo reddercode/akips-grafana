@@ -14,6 +14,8 @@ export interface QueryOptions {
   device?: string;
   child?: string;
   attribute?: string;
+  legendFormat?: string;
+  legendRegex?: boolean;
 }
 
 export interface Query extends DataQuery, QueryOptions {
@@ -46,8 +48,8 @@ export interface Table {
 }
 
 export interface QueryResult {
+  refId: string;
   error?: string;
-  refId?: string;
   metaJson?: string;
   series?: TimeSeries[];
   tables?: Table[];

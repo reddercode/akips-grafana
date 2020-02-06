@@ -10,25 +10,34 @@ import {
   FieldType,
   MetricFindValue,
   FieldDTO,
+  stringToJsRegex,
 } from '@grafana/data';
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
+import { secondsToHms } from './utils';
 
 const AKIPS_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-const UNIT_SUFFIXES: { [key: string]: string } = {
-  Octets: 'bytes',
-  BitRate: 'bps',
-  Util: 'percent',
-};
+const MIN_INTERVAL_MS = 60000;
 
 // Use template engine to build AKiPS queries
 function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars {
-  const intervalSec = Math.floor(query.intervalMs / 1000);
-  const fromSec = query.range.from.unix();
-  const fromFmt = query.range.from.format(AKIPS_TIME_FORMAT);
-  const toSec = query.range.to.unix();
-  const toFmt = query.range.to.format(AKIPS_TIME_FORMAT);
+  const intervalMs = query.intervalMs || MIN_INTERVAL_MS;
+  const intervalSec = Math.round(intervalMs / 1000);
+  const fromSec = query.range?.from.unix();
+  const fromFmt = query.range?.from.format(AKIPS_TIME_FORMAT);
+  const toSec = query.range?.to.unix();
+  const toFmt = query.range?.to.format(AKIPS_TIME_FORMAT);
 
   return {
+    // Override
+    __interval: {
+      text: String(query.interval),
+      value: query.interval,
+    },
+    __interval_ms: {
+      text: String(intervalMs),
+      value: intervalMs,
+    },
+    // Custom variables
     __interval_sec: {
       text: String(intervalSec),
       value: intervalSec,
@@ -67,6 +76,8 @@ function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars
 export class DataSource extends DataSourceApi<Query> {
   static DEFAULT_QUERY =
     'series interval total ${__interval_sec} time "from ${__from_sec} to ${__to_sec}" * "${__device}" "${__child}" "${__attribute}"';
+
+  interval = '1m';
 
   /** @ngInject */
   constructor(instanceSettings: DataSourceInstanceSettings, private backendSrv: any, private templateSrv: any) {
@@ -107,28 +118,60 @@ export class DataSource extends DataSourceApi<Query> {
     return query.query || query.rawQuery || '';
   }
 
-  guessUnit(name: string): string | undefined {
-    for (const s in UNIT_SUFFIXES) {
-      if (name.endsWith(s)) {
-        return UNIT_SUFFIXES[s];
+  private formatLegend(req: DataQueryRequest<Query>, q: Query, name: string): string {
+    if (!q.legendFormat) {
+      return name;
+    }
+
+    if (q.legendRegex) {
+      try {
+        const re = stringToJsRegex(this.templateSrv.replace(q.legendFormat, {}, 'regex'));
+        const matches = re.exec(name);
+        if (matches && matches.length > 1) {
+          return matches[1];
+        } else {
+          return name;
+        }
+      } catch {
+        return name;
       }
     }
-    return undefined;
+
+    const sv: ScopedVars = {
+      ...req.scopedVars,
+      ...getLocalVars(req, q),
+      __metricName: {
+        text: name,
+        value: name,
+      },
+    };
+    return this.templateSrv.replace(q.legendFormat, sv);
   }
 
   /**
    * Query for data, and optionally stream results
    */
   async query(request: DataQueryRequest<Query>): Promise<DataQueryResponse> {
+    // interval must be a multiple of 60 sec --eugene
+    const intervalMs = Math.ceil((request.intervalMs || MIN_INTERVAL_MS) / MIN_INTERVAL_MS) * MIN_INTERVAL_MS;
     const req: DataQueryRequest<Query> = {
       ...request,
-      // interval must be a multiple of 60 sec --eugene
-      intervalMs: Math.ceil(request.intervalMs / 60000) * 60000,
+      interval: secondsToHms(intervalMs / 1000),
+      intervalMs: intervalMs,
     };
 
-    const queries = req.targets
-      .filter(q => !q.hide)
-      .map<Query>(q => ({
+    const targets = req.targets.filter(q => !q.hide);
+    if (targets.length === 0) {
+      return { data: [] };
+    }
+
+    const queries: { [refId: string]: Query } = Object.assign(
+      {},
+      ...targets.map<{ [refId: string]: Query }>(q => ({ [q.refId]: q }))
+    );
+
+    const tsdbQueries = targets.map<Query>(
+      (q: Query): Query => ({
         datasourceId: this.id,
         type: q.type || 'timeSeriesQuery',
         refId: q.refId,
@@ -141,15 +184,12 @@ export class DataSource extends DataSourceApi<Query> {
         }),
         intervalMs: req.intervalMs,
         maxDataPoints: req.maxDataPoints,
-      }));
-
-    if (queries.length === 0) {
-      return { data: [] };
-    }
+      })
+    );
 
     const { data }: { data: QueryResults } = await this.backendSrv.datasourceRequest({
       data: {
-        queries: queries,
+        queries: Object.values(tsdbQueries),
         from: req.range?.from.valueOf().toString(),
         to: req.range?.to.valueOf().toString(),
       } as TSDBRequest,
@@ -162,15 +202,14 @@ export class DataSource extends DataSourceApi<Query> {
       .map<MutableDataFrame>(
         r =>
           new MutableDataFrame(
-            r.series?.length
+            r.series?.length !== 0
               ? {
                   // Time series response
                   refId: r.refId,
                   fields: [
                     ...r.series?.map(s => ({
                       type: FieldType.number,
-                      name: s.name || '',
-                      config: (unit => (unit ? { unit } : undefined))(this.guessUnit(s.name || '')),
+                      name: this.formatLegend(req, queries[r.refId], s.name || ''),
                       values: s.points?.map(v => v[0]),
                     })),
                     // The first time field only is used anyway --eugene
@@ -180,7 +219,6 @@ export class DataSource extends DataSourceApi<Query> {
                             {
                               type: FieldType.time,
                               name: 'Time',
-                              config: { unit: 'dateTimeAsIso' },
                               values: s.points?.map(v => v[1]),
                             },
                           ]
