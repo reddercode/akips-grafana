@@ -39,5 +39,12 @@
 	"dependencies": {
 		"grafanaVersion": "6.6.x",
 		"plugins": []
-	}
+	},
+	"includes": [
+		{
+			"type": "dashboard",
+			"name": "Device and interface stats",
+			"path": "dashboards/akips_stats.json"
+		}
+	]
 }

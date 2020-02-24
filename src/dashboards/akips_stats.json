@@ -1,0 +1,6746 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1582500470755,
+  "links": [],
+  "panels": [
+    {
+      "cacheTimeout": null,
+      "columns": [],
+      "datasource": null,
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 14,
+      "links": [],
+      "options": {},
+      "pageSize": null,
+      "pluginVersion": "6.6.1",
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "align": "auto",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "align": "right",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "attribute": "ip4addr",
+          "child": "sys",
+          "device": "EXR-Green-Box",
+          "omitParents": true,
+          "rawQuery": "mget * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "A",
+          "singleValue": true,
+          "type": "tableQuery"
+        },
+        {
+          "attribute": "SNMPv2-MIB.sysLocation",
+          "child": "sys",
+          "device": "EXR-Green-Box",
+          "omitParents": true,
+          "rawQuery": "mget * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "B",
+          "singleValue": true,
+          "type": "tableQuery"
+        },
+        {
+          "attribute": "SNMPv2-MIB.sysDescr",
+          "child": "sys",
+          "device": "EXR-Green-Box",
+          "omitParents": true,
+          "rawQuery": "mget * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "C",
+          "singleValue": true,
+          "type": "tableQuery"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Device",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "hiddenSeries": false,
+      "id": 16,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "PING.icmpRtt",
+          "child": "ping4",
+          "device": "EXR-Green-Box",
+          "legendFormat": "Time",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "A",
+          "type": "timeSeriesQuery"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Ping Round Trip Time",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "µs",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "hiddenSeries": false,
+      "id": 18,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "HOST-RESOURCES-MIB.hrProcessorLoad",
+          "child": "cpu.1",
+          "device": "EXR-Green-Box",
+          "legendFormat": "CPU",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "CPU",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "MIKROTIK-MIB.mtxrHlTemperature",
+          "child": "temp",
+          "device": "EXR-Green-Box",
+          "legendFormat": "Temperature",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Temperature",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "celsius",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "hiddenSeries": false,
+      "id": 22,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "HOST-RESOURCES-MIB.hrStorageUtil",
+          "child": "storage.131072",
+          "device": "EXR-Green-Box",
+          "legendFormat": "Storage",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${__child}\" \"${__attribute}\"",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Storage",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "# Interface: ${interface}\n\n\n",
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 24,
+      "mode": "markdown",
+      "options": {},
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 17
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "defaults": {
+            "decimals": 0,
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "bps"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "pluginVersion": "6.6.1",
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifSpeed",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "rawQuery": "mget * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A",
+          "singleValue": true,
+          "type": "timeSeriesQuery"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Speed",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 17
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "defaults": {
+            "mappings": [
+              {
+                "from": "",
+                "id": 1,
+                "operator": "",
+                "text": "Down",
+                "to": "",
+                "type": 1,
+                "value": "2"
+              },
+              {
+                "from": "",
+                "id": 2,
+                "operator": "",
+                "text": "Up",
+                "to": "",
+                "type": 1,
+                "value": "1"
+              },
+              {
+                "from": "",
+                "id": 3,
+                "operator": "",
+                "text": "Testing",
+                "to": "",
+                "type": 1,
+                "value": "3"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "pluginVersion": "6.6.1",
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifAdminStatus",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "rawQuery": "mget * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A",
+          "singleValue": true
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Admin State",
+      "type": "stat"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 17
+      },
+      "id": 8,
+      "links": [],
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "defaults": {
+            "mappings": [
+              {
+                "id": 0,
+                "op": "=",
+                "text": "Down",
+                "type": 1,
+                "value": "2"
+              },
+              {
+                "from": "",
+                "id": 1,
+                "operator": "",
+                "text": "Up",
+                "to": "",
+                "type": 1,
+                "value": "1"
+              },
+              {
+                "from": "",
+                "id": 2,
+                "operator": "",
+                "text": "Testing",
+                "to": "",
+                "type": 1,
+                "value": "3"
+              }
+            ],
+            "nullValueMode": "connected",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal"
+      },
+      "pluginVersion": "6.6.1",
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifOperStatus",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "rawQuery": "mget * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A",
+          "singleValue": true
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Operational State",
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifOutUtil",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "TX",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A"
+        },
+        {
+          "attribute": "IF-MIB.ifInUtil",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "RX",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Utilisation",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "hiddenSeries": false,
+      "id": 4,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifOutBitRate",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "TX",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A"
+        },
+        {
+          "attribute": "IF-MIB.ifInBitRate",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "RX",
+          "rawQuery": "series interval avg ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Bits Per Second",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bps",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "hiddenSeries": false,
+      "id": 6,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "attribute": "IF-MIB.ifHCOutOctets",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "TX Per ${__interval}",
+          "rawQuery": "series interval total ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "A"
+        },
+        {
+          "attribute": "IF-MIB.ifHCInOctets",
+          "child": "ether1-WAN",
+          "device": "EXR-Green-Box",
+          "legendFormat": "RX Per ${__interval}",
+          "rawQuery": "series interval total ${__interval_sec} time \"from ${__from_sec} to ${__to_sec}\" * \"${device}\" \"${interface}\" \"${__attribute}\"",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Bytes Volume",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "schemaVersion": 22,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "EXR-Green-Box",
+          "value": "EXR-Green-Box"
+        },
+        "datasource": "AKiPS",
+        "definition": "mlist device *",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Device",
+        "multi": false,
+        "name": "device",
+        "options": [
+          {
+            "selected": false,
+            "text": "AC-Camisano-POD-A-1",
+            "value": "AC-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "AC-Camisano-POD-A-2",
+            "value": "AC-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "AC-Camisano-POD-TR1-AC1",
+            "value": "AC-Camisano-POD-TR1-AC1"
+          },
+          {
+            "selected": false,
+            "text": "AC-Camisano-POD-TR1-AC2",
+            "value": "AC-Camisano-POD-TR1-AC2"
+          },
+          {
+            "selected": false,
+            "text": "BB-Caldera-1",
+            "value": "BB-Caldera-1"
+          },
+          {
+            "selected": false,
+            "text": "BB-Caldera-2",
+            "value": "BB-Caldera-2"
+          },
+          {
+            "selected": false,
+            "text": "BB-Camisano-1",
+            "value": "BB-Camisano-1"
+          },
+          {
+            "selected": false,
+            "text": "BB-Camisano-2",
+            "value": "BB-Camisano-2"
+          },
+          {
+            "selected": false,
+            "text": "BB-Castagnara-1",
+            "value": "BB-Castagnara-1"
+          },
+          {
+            "selected": false,
+            "text": "BB-Castagnara-2",
+            "value": "BB-Castagnara-2"
+          },
+          {
+            "selected": false,
+            "text": "BB-Mestre-1",
+            "value": "BB-Mestre-1"
+          },
+          {
+            "selected": false,
+            "text": "BB-Mestre-2",
+            "value": "BB-Mestre-2"
+          },
+          {
+            "selected": false,
+            "text": "BB-VSIX-1",
+            "value": "BB-VSIX-1"
+          },
+          {
+            "selected": false,
+            "text": "BB-VSIX-2",
+            "value": "BB-VSIX-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Abano-1",
+            "value": "CCR-Abano-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Albettone-1",
+            "value": "CCR-Albettone-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Albettone-2",
+            "value": "CCR-Albettone-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Bagnoli-1",
+            "value": "CCR-Bagnoli-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Bagnoli-2",
+            "value": "CCR-Bagnoli-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Bassano-SRM-1",
+            "value": "CCR-Bassano-SRM-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Berici-1",
+            "value": "CCR-Berici-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Berici-2",
+            "value": "CCR-Berici-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Borgoricco-1",
+            "value": "CCR-Borgoricco-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Borgoricco-2",
+            "value": "CCR-Borgoricco-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Caldera-1",
+            "value": "CCR-Caldera-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Caldera-2",
+            "value": "CCR-Caldera-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-10",
+            "value": "CCR-Camisano-10"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-3",
+            "value": "CCR-Camisano-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-4",
+            "value": "CCR-Camisano-4"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-5",
+            "value": "CCR-Camisano-5"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-6",
+            "value": "CCR-Camisano-6"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-7",
+            "value": "CCR-Camisano-7"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-9",
+            "value": "CCR-Camisano-9"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-MCC-1-1",
+            "value": "CCR-Camisano-MCC-1-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-MCC-1-2",
+            "value": "CCR-Camisano-MCC-1-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-POD-A-1",
+            "value": "CCR-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Camisano-POD-A-2",
+            "value": "CCR-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Campodarsego-1",
+            "value": "CCR-Campodarsego-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Campodarsego-2",
+            "value": "CCR-Campodarsego-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Castagnara-1",
+            "value": "CCR-Castagnara-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Castagnara-2",
+            "value": "CCR-Castagnara-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Castagnara-3",
+            "value": "CCR-Castagnara-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Castagnara-4",
+            "value": "CCR-Castagnara-4"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Conegliano-1",
+            "value": "CCR-Conegliano-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-DSL-1",
+            "value": "CCR-DSL-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-DSL-3",
+            "value": "CCR-DSL-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-DSL-4",
+            "value": "CCR-DSL-4"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Fiber-3",
+            "value": "CCR-Fiber-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Galileo-1",
+            "value": "CCR-Galileo-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Galileo-2",
+            "value": "CCR-Galileo-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-1",
+            "value": "CCR-Mestre-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-2",
+            "value": "CCR-Mestre-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-3",
+            "value": "CCR-Mestre-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-4",
+            "value": "CCR-Mestre-4"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-Server-1",
+            "value": "CCR-Mestre-Server-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-Server-2",
+            "value": "CCR-Mestre-Server-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-VoIP-1",
+            "value": "CCR-Mestre-VoIP-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mestre-VoIP-2",
+            "value": "CCR-Mestre-VoIP-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mira-1",
+            "value": "CCR-Mira-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Mira-2",
+            "value": "CCR-Mira-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Montebello-1",
+            "value": "CCR-Montebello-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Montebello-2",
+            "value": "CCR-Montebello-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Montecchio-1",
+            "value": "CCR-Montecchio-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-NTP-Castagnara-1",
+            "value": "CCR-NTP-Castagnara-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Resana-1",
+            "value": "CCR-Resana-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanDona-1",
+            "value": "CCR-SanDona-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanDona-2",
+            "value": "CCR-SanDona-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanDona-3",
+            "value": "CCR-SanDona-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanDona-4",
+            "value": "CCR-SanDona-4"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanMartino-1",
+            "value": "CCR-SanMartino-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-SanMartino-2",
+            "value": "CCR-SanMartino-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Saonara-1",
+            "value": "CCR-Saonara-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Saonara-2",
+            "value": "CCR-Saonara-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Tomba-1",
+            "value": "CCR-Tomba-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Tomba-2",
+            "value": "CCR-Tomba-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Tomba-3",
+            "value": "CCR-Tomba-3"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Treviso-CSP-1",
+            "value": "CCR-Treviso-CSP-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Treviso-TC-1",
+            "value": "CCR-Treviso-TC-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Venezia-1",
+            "value": "CCR-Venezia-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Venezia-2",
+            "value": "CCR-Venezia-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Venezia-VHT-1",
+            "value": "CCR-Venezia-VHT-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Vicenza-1",
+            "value": "CCR-Vicenza-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-Vicenza-2",
+            "value": "CCR-Vicenza-2"
+          },
+          {
+            "selected": false,
+            "text": "CCR-VPN-Castagnara-1",
+            "value": "CCR-VPN-Castagnara-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-VSIX-1",
+            "value": "CCR-VSIX-1"
+          },
+          {
+            "selected": false,
+            "text": "CCR-VSIX-2",
+            "value": "CCR-VSIX-2"
+          },
+          {
+            "selected": false,
+            "text": "CM-Ethernet",
+            "value": "CM-Ethernet"
+          },
+          {
+            "selected": false,
+            "text": "CND-Camisano-Iceman-ipmi",
+            "value": "CND-Camisano-Iceman-ipmi"
+          },
+          {
+            "selected": false,
+            "text": "CND-Camisano-Magneto-ipmi",
+            "value": "CND-Camisano-Magneto-ipmi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-2B-exStudioBorgatoRenzo",
+            "value": "EXR-2B-exStudioBorgatoRenzo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-3B-Annone",
+            "value": "EXR-3B-Annone"
+          },
+          {
+            "selected": false,
+            "text": "EXR-3B-via-Calnova-R1",
+            "value": "EXR-3B-via-Calnova-R1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-3B-via-Calnova-R2",
+            "value": "EXR-3B-via-Calnova-R2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-3B-via-delle-Industrie",
+            "value": "EXR-3B-via-delle-Industrie"
+          },
+          {
+            "selected": false,
+            "text": "EXR-3PS-Imasaf",
+            "value": "EXR-3PS-Imasaf"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Accessoria",
+            "value": "EXR-Accessoria"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Adriatica-Commerciale-Macchine",
+            "value": "EXR-Adriatica-Commerciale-Macchine"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Aertesi-Conselve",
+            "value": "EXR-Aertesi-Conselve"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Aertesi-OneDiFonte",
+            "value": "EXR-Aertesi-OneDiFonte"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Agricola-Pelosin-exCorradi",
+            "value": "EXR-Agricola-Pelosin-exCorradi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ajisko-Stay-City",
+            "value": "EXR-Ajisko-Stay-City"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Alba-Elettronica",
+            "value": "EXR-Alba-Elettronica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Alessi",
+            "value": "EXR-Alessi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Alux",
+            "value": "EXR-Alux"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Anima-Terra",
+            "value": "EXR-Anima-Terra"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Antonio-Casotto",
+            "value": "EXR-Antonio-Casotto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Arcadia-Experience",
+            "value": "EXR-Arcadia-Experience"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Arco",
+            "value": "EXR-Arco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Area-B",
+            "value": "EXR-Area-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-AreaImpianti",
+            "value": "EXR-AreaImpianti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Array-System",
+            "value": "EXR-Array-System"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Artel",
+            "value": "EXR-Artel"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Artigiana-Stampi",
+            "value": "EXR-Artigiana-Stampi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ASB-Consulting",
+            "value": "EXR-ASB-Consulting"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Asolo-Bevande",
+            "value": "EXR-Asolo-Bevande"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Assigiotto",
+            "value": "EXR-Assigiotto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ATA-Srl",
+            "value": "EXR-ATA-Srl"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Atlas-Filtri-Italia-exAlbignasego",
+            "value": "EXR-Atlas-Filtri-Italia-exAlbignasego"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Atlas-Varisco",
+            "value": "EXR-Atlas-Varisco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Atlas-Varisco-Sede-2",
+            "value": "EXR-Atlas-Varisco-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Atlas-ViaDelSanto",
+            "value": "EXR-Atlas-ViaDelSanto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Atlas-ViaPierobon",
+            "value": "EXR-Atlas-ViaPierobon"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Autec",
+            "value": "EXR-Autec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Avv-e-Comm",
+            "value": "EXR-Avv-e-Comm"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Baggio-De-Sordi-Giaviera-1",
+            "value": "EXR-Baggio-De-Sordi-Giaviera-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Baggio-De-Sordi-Nervesa-2",
+            "value": "EXR-Baggio-De-Sordi-Nervesa-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ballan",
+            "value": "EXR-Ballan"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ballan-sede-B",
+            "value": "EXR-Ballan-sede-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Barbieri",
+            "value": "EXR-Barbieri"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Barduca",
+            "value": "EXR-Barduca"
+          },
+          {
+            "selected": false,
+            "text": "EXR-BDA-Solution",
+            "value": "EXR-BDA-Solution"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Bea-Ingranaggi-exTICRoulunds",
+            "value": "EXR-Bea-Ingranaggi-exTICRoulunds"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Berto-Bovolenta",
+            "value": "EXR-Berto-Bovolenta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Biasuzzi",
+            "value": "EXR-Biasuzzi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Biosigma",
+            "value": "EXR-Biosigma"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Bitubo",
+            "value": "EXR-Bitubo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Bosco-Malera",
+            "value": "EXR-Bosco-Malera"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Boscolo-Bielo-Hub",
+            "value": "EXR-Boscolo-Bielo-Hub"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Boscolo-Bielo-Mestre",
+            "value": "EXR-Boscolo-Bielo-Mestre"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Boscolo-Mag48",
+            "value": "EXR-Boscolo-Mag48"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Boscolo-SanBasilio",
+            "value": "EXR-Boscolo-SanBasilio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-BoscoMalera-Noventa",
+            "value": "EXR-BoscoMalera-Noventa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brado-Viale-Europa",
+            "value": "EXR-Brado-Viale-Europa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brazzale",
+            "value": "EXR-Brazzale"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brazzale-Campodoro",
+            "value": "EXR-Brazzale-Campodoro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brazzale-Cogollo-del-Cengio",
+            "value": "EXR-Brazzale-Cogollo-del-Cengio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brazzale-Costabissara",
+            "value": "EXR-Brazzale-Costabissara"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brazzale-Malo",
+            "value": "EXR-Brazzale-Malo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Bresolin",
+            "value": "EXR-Bresolin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Brian-Newsom",
+            "value": "EXR-Brian-Newsom"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ca-Zenobio",
+            "value": "EXR-Ca-Zenobio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cadline",
+            "value": "EXR-Cadline"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Caldieri",
+            "value": "EXR-Caldieri"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Calenda",
+            "value": "EXR-Calenda"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Calenda-Magazzino",
+            "value": "EXR-Calenda-Magazzino"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Calp",
+            "value": "EXR-Calp"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Canton-e-Associati",
+            "value": "EXR-Canton-e-Associati"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cartoveneta",
+            "value": "EXR-Cartoveneta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cattolica-Services",
+            "value": "EXR-Cattolica-Services"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cereal-Docks-A-1",
+            "value": "EXR-Cereal-Docks-A-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cereal-Docks-A-2",
+            "value": "EXR-Cereal-Docks-A-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cereal-Docks-B-1",
+            "value": "EXR-Cereal-Docks-B-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cereal-Docks-B-2",
+            "value": "EXR-Cereal-Docks-B-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Chiclitic",
+            "value": "EXR-Chiclitic"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ciemmeplast",
+            "value": "EXR-Ciemmeplast"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cimm",
+            "value": "EXR-Cimm"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cimm-sede-B",
+            "value": "EXR-Cimm-sede-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cividac",
+            "value": "EXR-Cividac"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Clea",
+            "value": "EXR-Clea"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Clea-Sede-2",
+            "value": "EXR-Clea-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Clinica-Dentale",
+            "value": "EXR-Clinica-Dentale"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Clinica-Dentale-Grancona",
+            "value": "EXR-Clinica-Dentale-Grancona"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Codogno-Maurizio",
+            "value": "EXR-Codogno-Maurizio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Codognotto",
+            "value": "EXR-Codognotto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comas",
+            "value": "EXR-Comas"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comel",
+            "value": "EXR-Comel"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comel-Spa",
+            "value": "EXR-Comel-Spa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comune-Camisano-Mag",
+            "value": "EXR-Comune-Camisano-Mag"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comune-Camisano-Scuole-29Aprile",
+            "value": "EXR-Comune-Camisano-Scuole-29Aprile"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Comune-Camisano-Scuole-DonPerin",
+            "value": "EXR-Comune-Camisano-Scuole-DonPerin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-Biblioteca-Piano-Terra",
+            "value": "EXR-ComuneSaonara-Biblioteca-Piano-Terra"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-Biblioteca-Polizia-Sociale",
+            "value": "EXR-ComuneSaonara-Biblioteca-Polizia-Sociale"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-Municipio",
+            "value": "EXR-ComuneSaonara-Municipio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-ScuoleElementariViaBachelet",
+            "value": "EXR-ComuneSaonara-ScuoleElementariViaBachelet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-ScuoleElementariViaMilani",
+            "value": "EXR-ComuneSaonara-ScuoleElementariViaMilani"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-ScuoleMedieViaBachelet",
+            "value": "EXR-ComuneSaonara-ScuoleMedieViaBachelet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ComuneSaonara-ScuoleMedieViaDonMilani",
+            "value": "EXR-ComuneSaonara-ScuoleMedieViaDonMilani"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Conetical-VSIX",
+            "value": "EXR-Conetical-VSIX"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Consutec",
+            "value": "EXR-Consutec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Conte-Piovene-Rilancio",
+            "value": "EXR-Conte-Piovene-Rilancio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Corapel",
+            "value": "EXR-Corapel"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Corso-Italia",
+            "value": "EXR-Corso-Italia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cosmap",
+            "value": "EXR-Cosmap"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cotralog",
+            "value": "EXR-Cotralog"
+          },
+          {
+            "selected": false,
+            "text": "EXR-CPA",
+            "value": "EXR-CPA"
+          },
+          {
+            "selected": false,
+            "text": "EXR-CPE-Srl-ExCpeErediMonti",
+            "value": "EXR-CPE-Srl-ExCpeErediMonti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-CPESrl-Cartigliano",
+            "value": "EXR-CPESrl-Cartigliano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-CPESrl-Sartori-Nove",
+            "value": "EXR-CPESrl-Sartori-Nove"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Criocabin",
+            "value": "EXR-Criocabin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Cruise-Service",
+            "value": "EXR-Cruise-Service"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Dataselice",
+            "value": "EXR-Dataselice"
+          },
+          {
+            "selected": false,
+            "text": "EXR-De-Tacchi",
+            "value": "EXR-De-Tacchi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Design-And-Consulting-V-Vals",
+            "value": "EXR-Design-And-Consulting-V-Vals"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Digital-Blue",
+            "value": "EXR-Digital-Blue"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Digital-Mind",
+            "value": "EXR-Digital-Mind"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Dinagas",
+            "value": "EXR-Dinagas"
+          },
+          {
+            "selected": false,
+            "text": "EXR-DMO-Pernumia",
+            "value": "EXR-DMO-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Doge",
+            "value": "EXR-Doge"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Drawlight",
+            "value": "EXR-Drawlight"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Dualinox",
+            "value": "EXR-Dualinox"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Dualinox-Sede-2",
+            "value": "EXR-Dualinox-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Duolabs",
+            "value": "EXR-Duolabs"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ecocentro-Camisano",
+            "value": "EXR-Ecocentro-Camisano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-EcoManagement-Ecorex",
+            "value": "EXR-EcoManagement-Ecorex"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Elca",
+            "value": "EXR-Elca"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Eleven",
+            "value": "EXR-Eleven"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Elite-Ambiente",
+            "value": "EXR-Elite-Ambiente"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Elite-Ambiente-Sede-2",
+            "value": "EXR-Elite-Ambiente-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Emmegi",
+            "value": "EXR-Emmegi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-English-International-School",
+            "value": "EXR-English-International-School"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Enneci",
+            "value": "EXR-Enneci"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Enoveneta",
+            "value": "EXR-Enoveneta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Enoveneta-2",
+            "value": "EXR-Enoveneta-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Enrico-Conte",
+            "value": "EXR-Enrico-Conte"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Epiu",
+            "value": "EXR-Epiu"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Epiu-Abano",
+            "value": "EXR-Epiu-Abano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Epiu-Trebaseleghe",
+            "value": "EXR-Epiu-Trebaseleghe"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Erma-Logistica",
+            "value": "EXR-Erma-Logistica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Errebi",
+            "value": "EXR-Errebi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Espe",
+            "value": "EXR-Espe"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Essemme",
+            "value": "EXR-Essemme"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Eurotrading-Pd",
+            "value": "EXR-Eurotrading-Pd"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Eurotrading-POD",
+            "value": "EXR-Eurotrading-POD"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Eurotrading-Veggiano",
+            "value": "EXR-Eurotrading-Veggiano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Euroveneta",
+            "value": "EXR-Euroveneta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Evolve-ExBottegaArtigiana",
+            "value": "EXR-Evolve-ExBottegaArtigiana"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Execo",
+            "value": "EXR-Execo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Antonio-Zamperla-Abitazione",
+            "value": "EXR-F-Antonio-Zamperla-Abitazione"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Bonetto",
+            "value": "EXR-F-Bonetto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Calenda-BS1",
+            "value": "EXR-F-Calenda-BS1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Calenda-Pd1-ViaFiume",
+            "value": "EXR-F-Calenda-Pd1-ViaFiume"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Calenda-Pd2-ViaDante",
+            "value": "EXR-F-Calenda-Pd2-ViaDante"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Calenda-RE1",
+            "value": "EXR-F-Calenda-RE1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Calenda-TS1",
+            "value": "EXR-F-Calenda-TS1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-CaMura",
+            "value": "EXR-F-CaMura"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Carrozzeria-Romea",
+            "value": "EXR-F-Carrozzeria-Romea"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Cavinato-Casa",
+            "value": "EXR-F-Cavinato-Casa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Cercato-e-Fracasso",
+            "value": "EXR-F-Cercato-e-Fracasso"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Comune-Camisano-Biblioteca",
+            "value": "EXR-F-Comune-Camisano-Biblioteca"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Comune-Camisano-Scuole",
+            "value": "EXR-F-Comune-Camisano-Scuole"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Comune-Camisano-Sede",
+            "value": "EXR-F-Comune-Camisano-Sede"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Conte-Piovene",
+            "value": "EXR-F-Conte-Piovene"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Corporeum",
+            "value": "EXR-F-Corporeum"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Elcon-Studio-Castagnara",
+            "value": "EXR-F-Elcon-Studio-Castagnara"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Ervas",
+            "value": "EXR-F-Ervas"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Falegnameria-Pulliero",
+            "value": "EXR-F-Falegnameria-Pulliero"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Farmacia-al-Duomo-Sandrigo",
+            "value": "EXR-F-Farmacia-al-Duomo-Sandrigo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Gianni-Vecchiato",
+            "value": "EXR-F-Gianni-Vecchiato"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Girardello",
+            "value": "EXR-F-Girardello"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Girardello-Casa",
+            "value": "EXR-F-Girardello-Casa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Idealplus",
+            "value": "EXR-F-Idealplus"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-ImmobiliareCastello",
+            "value": "EXR-F-ImmobiliareCastello"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Kappadue",
+            "value": "EXR-F-Kappadue"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Lavind",
+            "value": "EXR-F-Lavind"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Lorenzo-Ceretta",
+            "value": "EXR-F-Lorenzo-Ceretta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-MGR-ExSystemAndProjects",
+            "value": "EXR-F-MGR-ExSystemAndProjects"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Miniforms",
+            "value": "EXR-F-Miniforms"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Monastero-S-Daniele",
+            "value": "EXR-F-Monastero-S-Daniele"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Saving",
+            "value": "EXR-F-Saving"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Scalzotto",
+            "value": "EXR-F-Scalzotto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Scatolificio-Bozzato",
+            "value": "EXR-F-Scatolificio-Bozzato"
+          },
+          {
+            "selected": false,
+            "text": "EXR-F-Vocalap",
+            "value": "EXR-F-Vocalap"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fabrizia-Michieletto",
+            "value": "EXR-Fabrizia-Michieletto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Facco",
+            "value": "EXR-Facco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fanton",
+            "value": "EXR-Fanton"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Farmogal",
+            "value": "EXR-Farmogal"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ferrari",
+            "value": "EXR-Ferrari"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fiaba",
+            "value": "EXR-Fiaba"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fiorital",
+            "value": "EXR-Fiorital"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fisc",
+            "value": "EXR-Fisc"
+          },
+          {
+            "selected": false,
+            "text": "EXR-FISM",
+            "value": "EXR-FISM"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Flowers-Express",
+            "value": "EXR-Flowers-Express"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-Auditorium-Appiani",
+            "value": "EXR-Fondazione-Auditorium-Appiani"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-Bortolan",
+            "value": "EXR-Fondazione-Bortolan"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-CaSpineda",
+            "value": "EXR-Fondazione-CaSpineda"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-SanFrancesco",
+            "value": "EXR-Fondazione-SanFrancesco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-Teatro-Comunale",
+            "value": "EXR-Fondazione-Teatro-Comunale"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-Teatro-Eden",
+            "value": "EXR-Fondazione-Teatro-Eden"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Fondazione-Teatro-Voci",
+            "value": "EXR-Fondazione-Teatro-Voci"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Forno-Asolo",
+            "value": "EXR-Forno-Asolo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Forno-Asolo-Jesolo",
+            "value": "EXR-Forno-Asolo-Jesolo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Forrec",
+            "value": "EXR-Forrec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Franco-Fabbri",
+            "value": "EXR-Franco-Fabbri"
+          },
+          {
+            "selected": false,
+            "text": "EXR-G-Tec-Europe",
+            "value": "EXR-G-Tec-Europe"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Gallo-Legnami",
+            "value": "EXR-Gallo-Legnami"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Gasnet",
+            "value": "EXR-Gasnet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Geo-Fiera-di-Padova",
+            "value": "EXR-Geo-Fiera-di-Padova"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Giada",
+            "value": "EXR-Giada"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Gibus-Saccolongo",
+            "value": "EXR-Gibus-Saccolongo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Gibus-Veggiano",
+            "value": "EXR-Gibus-Veggiano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Girolibero-Bike-Incoming",
+            "value": "EXR-Girolibero-Bike-Incoming"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Graphosystem",
+            "value": "EXR-Graphosystem"
+          },
+          {
+            "selected": true,
+            "text": "EXR-Green-Box",
+            "value": "EXR-Green-Box"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Guidolin",
+            "value": "EXR-Guidolin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Guidolin-Gianni",
+            "value": "EXR-Guidolin-Gianni"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hammeley",
+            "value": "EXR-Hammeley"
+          },
+          {
+            "selected": false,
+            "text": "EXR-HardService",
+            "value": "EXR-HardService"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hide",
+            "value": "EXR-Hide"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hidros",
+            "value": "EXR-Hidros"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hilding-Anders",
+            "value": "EXR-Hilding-Anders"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Homes",
+            "value": "EXR-Homes"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hotel-Galileo",
+            "value": "EXR-Hotel-Galileo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hotel-Millepini",
+            "value": "EXR-Hotel-Millepini"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Hotel-Net-Tower",
+            "value": "EXR-Hotel-Net-Tower"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ideandum",
+            "value": "EXR-Ideandum"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Il-Gufo",
+            "value": "EXR-Il-Gufo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-IleniaPonticello",
+            "value": "EXR-IleniaPonticello"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Impresoft-exMayking",
+            "value": "EXR-Impresoft-exMayking"
+          },
+          {
+            "selected": false,
+            "text": "EXR-IMV",
+            "value": "EXR-IMV"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Incide-Engineering",
+            "value": "EXR-Incide-Engineering"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Industrialchimica",
+            "value": "EXR-Industrialchimica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-IndustriaVenetaFilati",
+            "value": "EXR-IndustriaVenetaFilati"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Infonet",
+            "value": "EXR-Infonet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Infoplus-Marostica",
+            "value": "EXR-Infoplus-Marostica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Inglass",
+            "value": "EXR-Inglass"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Innave",
+            "value": "EXR-Innave"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Insalata-Dell-Orto",
+            "value": "EXR-Insalata-Dell-Orto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interoute",
+            "value": "EXR-Interoute"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interpolimeri-Limena",
+            "value": "EXR-Interpolimeri-Limena"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interpolimeri-Mito-Polimers-BE",
+            "value": "EXR-Interpolimeri-Mito-Polimers-BE"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interpolimeri-POD",
+            "value": "EXR-Interpolimeri-POD"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interpolimeri-Porto-S-Elpidio",
+            "value": "EXR-Interpolimeri-Porto-S-Elpidio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Interpolimeri-Pregnana",
+            "value": "EXR-Interpolimeri-Pregnana"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Irideos-Caldera-1",
+            "value": "EXR-Irideos-Caldera-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Irideos-Caldera-2",
+            "value": "EXR-Irideos-Caldera-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Irideos-Schneider-1",
+            "value": "EXR-Irideos-Schneider-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Irideos-Schneider-2",
+            "value": "EXR-Irideos-Schneider-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Isolgomma",
+            "value": "EXR-Isolgomma"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Isomed",
+            "value": "EXR-Isomed"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Italbras",
+            "value": "EXR-Italbras"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Italian-Solar-Infocenter",
+            "value": "EXR-Italian-Solar-Infocenter"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Itre",
+            "value": "EXR-Itre"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ivars-BS",
+            "value": "EXR-Ivars-BS"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Kering-Caldera",
+            "value": "EXR-Kering-Caldera"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Kering-Milano",
+            "value": "EXR-Kering-Milano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Kering-Vescovana",
+            "value": "EXR-Kering-Vescovana"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Lames",
+            "value": "EXR-Lames"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Lan-e-Wan",
+            "value": "EXR-Lan-e-Wan"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Leas",
+            "value": "EXR-Leas"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Lineagem",
+            "value": "EXR-Lineagem"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Lucaprint",
+            "value": "EXR-Lucaprint"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Management-and-Resources",
+            "value": "EXR-Management-and-Resources"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ManifatturaCorona",
+            "value": "EXR-ManifatturaCorona"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ManifatturaTubiGomma",
+            "value": "EXR-ManifatturaTubiGomma"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MariaLuciaDiPasqualPaola",
+            "value": "EXR-MariaLuciaDiPasqualPaola"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Marina-Di-Venezia-Pd",
+            "value": "EXR-Marina-Di-Venezia-Pd"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Marina-di-Venezia-POS",
+            "value": "EXR-Marina-di-Venezia-POS"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MarinadiVenezia-Cavallino-1",
+            "value": "EXR-MarinadiVenezia-Cavallino-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MarinadiVenezia-Cavallino-2",
+            "value": "EXR-MarinadiVenezia-Cavallino-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mascar",
+            "value": "EXR-Mascar"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Maspica",
+            "value": "EXR-Maspica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Massimo-Turrin",
+            "value": "EXR-Massimo-Turrin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Master",
+            "value": "EXR-Master"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MAV-ExVolpato",
+            "value": "EXR-MAV-ExVolpato"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mavetec",
+            "value": "EXR-Mavetec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mazzonetto",
+            "value": "EXR-Mazzonetto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MC-Control",
+            "value": "EXR-MC-Control"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Meccanica-Nicoletti",
+            "value": "EXR-Meccanica-Nicoletti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mediterranea-Dese",
+            "value": "EXR-Mediterranea-Dese"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Michele-Rizzo",
+            "value": "EXR-Michele-Rizzo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Milan-Videoispezioni",
+            "value": "EXR-Milan-Videoispezioni"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Minello",
+            "value": "EXR-Minello"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mitica",
+            "value": "EXR-Mitica"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Mitica-Nuova-Sede",
+            "value": "EXR-Mitica-Nuova-Sede"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Modenese-Gastone-Sede-A",
+            "value": "EXR-Modenese-Gastone-Sede-A"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Modenese-Gastone-Sede-B",
+            "value": "EXR-Modenese-Gastone-Sede-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Moratto",
+            "value": "EXR-Moratto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MSA-Noventa",
+            "value": "EXR-MSA-Noventa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MSA-Padova-Floor",
+            "value": "EXR-MSA-Padova-Floor"
+          },
+          {
+            "selected": false,
+            "text": "EXR-MSA-Padova-Roof",
+            "value": "EXR-MSA-Padova-Roof"
+          },
+          {
+            "selected": false,
+            "text": "EXR-NDT-Company",
+            "value": "EXR-NDT-Company"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Nece-Ossidazione",
+            "value": "EXR-Nece-Ossidazione"
+          },
+          {
+            "selected": false,
+            "text": "EXR-New-Box",
+            "value": "EXR-New-Box"
+          },
+          {
+            "selected": false,
+            "text": "EXR-New-Box-Campodoro",
+            "value": "EXR-New-Box-Campodoro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-New-Box-Grisignano",
+            "value": "EXR-New-Box-Grisignano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Nuova-Complat-CasaleDiScodosia",
+            "value": "EXR-Nuova-Complat-CasaleDiScodosia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Nuova-Complat-Casaleone-VR",
+            "value": "EXR-Nuova-Complat-Casaleone-VR"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Nuova-Complat-Villafranca",
+            "value": "EXR-Nuova-Complat-Villafranca"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ocem",
+            "value": "EXR-Ocem"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Office-Group-Montegrotto",
+            "value": "EXR-Office-Group-Montegrotto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Castelgomberto-VI",
+            "value": "EXR-Orange1-Castelgomberto-VI"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Cornedo",
+            "value": "EXR-Orange1-Cornedo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Mapello-BG",
+            "value": "EXR-Orange1-Mapello-BG"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Montebello-VI",
+            "value": "EXR-Orange1-Montebello-VI"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Parma-PR",
+            "value": "EXR-Orange1-Parma-PR"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-SanMauroPascoli-FC",
+            "value": "EXR-Orange1-SanMauroPascoli-FC"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orange1-Torino-TO",
+            "value": "EXR-Orange1-Torino-TO"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Orion",
+            "value": "EXR-Orion"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ortomec",
+            "value": "EXR-Ortomec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ortoromi-Borgoricco",
+            "value": "EXR-Ortoromi-Borgoricco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ortoromi-Salerno",
+            "value": "EXR-Ortoromi-Salerno"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Ortoromi-Villanova",
+            "value": "EXR-Ortoromi-Villanova"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Overall",
+            "value": "EXR-Overall"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Pagin",
+            "value": "EXR-Pagin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Panizzolo-Sede-A",
+            "value": "EXR-Panizzolo-Sede-A"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Panizzolo-Sede-B",
+            "value": "EXR-Panizzolo-Sede-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Pantano-Carni",
+            "value": "EXR-Pantano-Carni"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Panther",
+            "value": "EXR-Panther"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Papermoustache",
+            "value": "EXR-Papermoustache"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Pavan",
+            "value": "EXR-Pavan"
+          },
+          {
+            "selected": false,
+            "text": "EXR-PCA-Servizi",
+            "value": "EXR-PCA-Servizi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Pegaso",
+            "value": "EXR-Pegaso"
+          },
+          {
+            "selected": false,
+            "text": "EXR-PegasoIndustries-Borgoricco-Sede-A",
+            "value": "EXR-PegasoIndustries-Borgoricco-Sede-A"
+          },
+          {
+            "selected": false,
+            "text": "EXR-PegasoIndustries-Borgoricco-Sede-B",
+            "value": "EXR-PegasoIndustries-Borgoricco-Sede-B"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Piron",
+            "value": "EXR-Piron"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Plastime",
+            "value": "EXR-Plastime"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Plastotecnica-Bagnoli",
+            "value": "EXR-Plastotecnica-Bagnoli"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Plastotecnica-Pernumia",
+            "value": "EXR-Plastotecnica-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Polistudio",
+            "value": "EXR-Polistudio"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Polo",
+            "value": "EXR-Polo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Prema",
+            "value": "EXR-Prema"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Prema-Camisano",
+            "value": "EXR-Prema-Camisano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Prima-Zanetti",
+            "value": "EXR-Prima-Zanetti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ProAndFast-exElco-Pernumia",
+            "value": "EXR-ProAndFast-exElco-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ProDoMix",
+            "value": "EXR-ProDoMix"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Raxy-Line",
+            "value": "EXR-Raxy-Line"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Real-Piel-VoIP",
+            "value": "EXR-Real-Piel-VoIP"
+          },
+          {
+            "selected": false,
+            "text": "EXR-RedderTenant-1",
+            "value": "EXR-RedderTenant-1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ReNT",
+            "value": "EXR-ReNT"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Retal",
+            "value": "EXR-Retal"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Rivetro",
+            "value": "EXR-Rivetro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Roncato-Cadoneghe",
+            "value": "EXR-Roncato-Cadoneghe"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Roncato-Campodarsego",
+            "value": "EXR-Roncato-Campodarsego"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Roncato-Fiumicello",
+            "value": "EXR-Roncato-Fiumicello"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Roncato-Loreggia",
+            "value": "EXR-Roncato-Loreggia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Roncato-Resana",
+            "value": "EXR-Roncato-Resana"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Rovolon",
+            "value": "EXR-Rovolon"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Royal-Fish",
+            "value": "EXR-Royal-Fish"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sale-e-Pepe",
+            "value": "EXR-Sale-e-Pepe"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Salin",
+            "value": "EXR-Salin"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Samec",
+            "value": "EXR-Samec"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sanypet",
+            "value": "EXR-Sanypet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sauro",
+            "value": "EXR-Sauro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Saving-Pederobba",
+            "value": "EXR-Saving-Pederobba"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Segnalstrade",
+            "value": "EXR-Segnalstrade"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Seriplanet",
+            "value": "EXR-Seriplanet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sfiti",
+            "value": "EXR-Sfiti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sfiti-Sede-2",
+            "value": "EXR-Sfiti-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sfiti-Venezia",
+            "value": "EXR-Sfiti-Venezia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sfiti-Zerobranco",
+            "value": "EXR-Sfiti-Zerobranco"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sigma",
+            "value": "EXR-Sigma"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Simone-Zorzi",
+            "value": "EXR-Simone-Zorzi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sir",
+            "value": "EXR-Sir"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Siro",
+            "value": "EXR-Siro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sirp",
+            "value": "EXR-Sirp"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Sital-Klima",
+            "value": "EXR-Sital-Klima"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Site-By-Site",
+            "value": "EXR-Site-By-Site"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Site-by-Site-sedeVecchia",
+            "value": "EXR-Site-by-Site-sedeVecchia"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Stardust-exCrab",
+            "value": "EXR-Stardust-exCrab"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Stefani",
+            "value": "EXR-Stefani"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Stiwood",
+            "value": "EXR-Stiwood"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Studio-Cavinato",
+            "value": "EXR-Studio-Cavinato"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Studio-Storti",
+            "value": "EXR-Studio-Storti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Studio-Zanon",
+            "value": "EXR-Studio-Zanon"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Tatiana-Allegro",
+            "value": "EXR-Tatiana-Allegro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-TCE-Casale",
+            "value": "EXR-TCE-Casale"
+          },
+          {
+            "selected": false,
+            "text": "EXR-TCE-Quarto-Altino",
+            "value": "EXR-TCE-Quarto-Altino"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Tecnoalarm",
+            "value": "EXR-Tecnoalarm"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Tecnosystem",
+            "value": "EXR-Tecnosystem"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Tecnovideo",
+            "value": "EXR-Tecnovideo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Teorema-BS",
+            "value": "EXR-Teorema-BS"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Texa",
+            "value": "EXR-Texa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Trafimet",
+            "value": "EXR-Trafimet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Transpack-Pontelongo",
+            "value": "EXR-Transpack-Pontelongo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Transpack-Tognana",
+            "value": "EXR-Transpack-Tognana"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Transpack-ViaDaVinci",
+            "value": "EXR-Transpack-ViaDaVinci"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Trasporti-Romagna",
+            "value": "EXR-Trasporti-Romagna"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Trevisan",
+            "value": "EXR-Trevisan"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Valbona-Lozzo",
+            "value": "EXR-Valbona-Lozzo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Valbona-Lozzo-Agrilux-Router-Switch",
+            "value": "EXR-Valbona-Lozzo-Agrilux-Router-Switch"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vecom",
+            "value": "EXR-Vecom"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Veneta-Bearings",
+            "value": "EXR-Veneta-Bearings"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VHT",
+            "value": "EXR-VHT"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VisioneImpresa",
+            "value": "EXR-VisioneImpresa"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VisionLab",
+            "value": "EXR-VisionLab"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Agricola-exVignaDogarina",
+            "value": "EXR-Vivo-Agricola-exVignaDogarina"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Jesolo",
+            "value": "EXR-Vivo-Cantine-Jesolo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Meolo",
+            "value": "EXR-Vivo-Cantine-Meolo"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Motta",
+            "value": "EXR-Vivo-Cantine-Motta"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Portogruaro",
+            "value": "EXR-Vivo-Cantine-Portogruaro"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Pramaggiore",
+            "value": "EXR-Vivo-Cantine-Pramaggiore"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Salgareda",
+            "value": "EXR-Vivo-Cantine-Salgareda"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-SanDona",
+            "value": "EXR-Vivo-Cantine-SanDona"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Torre-Di-Mosto",
+            "value": "EXR-Vivo-Cantine-Torre-Di-Mosto"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Vivo-Cantine-Treporti",
+            "value": "EXR-Vivo-Cantine-Treporti"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Biemme",
+            "value": "EXR-VPF-Biemme"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Boscolo-Mosella",
+            "value": "EXR-VPF-Boscolo-Mosella"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Faggian",
+            "value": "EXR-VPF-Faggian"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-FLS-First-Logistic-Solution",
+            "value": "EXR-VPF-FLS-First-Logistic-Solution"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-GFN-Gibellato",
+            "value": "EXR-VPF-GFN-Gibellato"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Sicom",
+            "value": "EXR-VPF-Sicom"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Spandex",
+            "value": "EXR-VPF-Spandex"
+          },
+          {
+            "selected": false,
+            "text": "EXR-VPF-Suore-Elisabettine",
+            "value": "EXR-VPF-Suore-Elisabettine"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Wenet",
+            "value": "EXR-Wenet"
+          },
+          {
+            "selected": false,
+            "text": "EXR-White1",
+            "value": "EXR-White1"
+          },
+          {
+            "selected": false,
+            "text": "EXR-WTS-Waste-Treatment-Solution",
+            "value": "EXR-WTS-Waste-Treatment-Solution"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zaino-Foodservices",
+            "value": "EXR-Zaino-Foodservices"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zaitex",
+            "value": "EXR-Zaitex"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zamperla",
+            "value": "EXR-Zamperla"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zamperla-Arcugnano",
+            "value": "EXR-Zamperla-Arcugnano"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zapi",
+            "value": "EXR-Zapi"
+          },
+          {
+            "selected": false,
+            "text": "EXR-Zapi2",
+            "value": "EXR-Zapi2"
+          },
+          {
+            "selected": false,
+            "text": "EXR-ZF-Padova",
+            "value": "EXR-ZF-Padova"
+          },
+          {
+            "selected": false,
+            "text": "FPS-Camisano-POD-A",
+            "value": "FPS-Camisano-POD-A"
+          },
+          {
+            "selected": false,
+            "text": "GEN-Bagnoli-1",
+            "value": "GEN-Bagnoli-1"
+          },
+          {
+            "selected": false,
+            "text": "JovianDSSa",
+            "value": "JovianDSSa"
+          },
+          {
+            "selected": false,
+            "text": "JovianDSSb",
+            "value": "JovianDSSb"
+          },
+          {
+            "selected": false,
+            "text": "MCC-Camisano-1",
+            "value": "MCC-Camisano-1"
+          },
+          {
+            "selected": false,
+            "text": "MtP-FO-Camisano-1",
+            "value": "MtP-FO-Camisano-1"
+          },
+          {
+            "selected": false,
+            "text": "MtP-FO-Camisano-POD-A-1",
+            "value": "MtP-FO-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "MtP-FO-Camisano-POD-A-2",
+            "value": "MtP-FO-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Abano-Casalserugo",
+            "value": "MtP-P-Abano-Casalserugo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Abano-Pd-Est",
+            "value": "MtP-P-Abano-Pd-Est"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Agna",
+            "value": "MtP-P-Bagnoli-Agna"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Anguillara",
+            "value": "MtP-P-Bagnoli-Anguillara"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Boara",
+            "value": "MtP-P-Bagnoli-Boara"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Bovolenta",
+            "value": "MtP-P-Bagnoli-Bovolenta"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Cavarzere",
+            "value": "MtP-P-Bagnoli-Cavarzere"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Ceregnano",
+            "value": "MtP-P-Bagnoli-Ceregnano"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Cona",
+            "value": "MtP-P-Bagnoli-Cona"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Este",
+            "value": "MtP-P-Bagnoli-Este"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Pernumia",
+            "value": "MtP-P-Bagnoli-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Piove-di-Sacco",
+            "value": "MtP-P-Bagnoli-Piove-di-Sacco"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-Pontelongo",
+            "value": "MtP-P-Bagnoli-Pontelongo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bagnoli-SPViminario",
+            "value": "MtP-P-Bagnoli-SPViminario"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bassano-SRM-E-Horn-30",
+            "value": "MtP-P-Bassano-SRM-E-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bassano-SRM-Marostica",
+            "value": "MtP-P-Bassano-SRM-Marostica"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bassano-SRM-SW",
+            "value": "MtP-P-Bassano-SRM-SW"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Bassano-SRM-Villaverla",
+            "value": "MtP-P-Bassano-SRM-Villaverla"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Berici-Casale-Scodosia",
+            "value": "MtP-P-Berici-Casale-Scodosia"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Berici-Fossona",
+            "value": "MtP-P-Berici-Fossona"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Berici-Montegalda",
+            "value": "MtP-P-Berici-Montegalda"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Berici-Teolo",
+            "value": "MtP-P-Berici-Teolo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Borgoricco-Arsego",
+            "value": "MtP-P-Borgoricco-Arsego"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Borgoricco-Curtarolo",
+            "value": "MtP-P-Borgoricco-Curtarolo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Castagnara-NoventaPadovana",
+            "value": "MtP-P-Castagnara-NoventaPadovana"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Castagnara-Polverara",
+            "value": "MtP-P-Castagnara-Polverara"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Conegliano-GiavieraDelMontello",
+            "value": "MtP-P-Conegliano-GiavieraDelMontello"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Galileo-Padova-NV2",
+            "value": "MtP-P-Galileo-Padova-NV2"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Galileo-ZIP",
+            "value": "MtP-P-Galileo-ZIP"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mestre-Marcon",
+            "value": "MtP-P-Mestre-Marcon"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mestre-Mogliano",
+            "value": "MtP-P-Mestre-Mogliano"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mestre-Mogliano-Ovest-23",
+            "value": "MtP-P-Mestre-Mogliano-Ovest-23"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mestre-Nord",
+            "value": "MtP-P-Mestre-Nord"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Dolo",
+            "value": "MtP-P-Mira-Dolo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Malcontenta",
+            "value": "MtP-P-Mira-Malcontenta"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Piove-di-Sacco",
+            "value": "MtP-P-Mira-Piove-di-Sacco"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Piove-di-Sacco-2",
+            "value": "MtP-P-Mira-Piove-di-Sacco-2"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Piove-di-Sacco-Ovest",
+            "value": "MtP-P-Mira-Piove-di-Sacco-Ovest"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Mira-Spinea",
+            "value": "MtP-P-Mira-Spinea"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-Annone",
+            "value": "MtP-P-SanDona-Annone"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-Eraclea",
+            "value": "MtP-P-SanDona-Eraclea"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-Meolo",
+            "value": "MtP-P-SanDona-Meolo"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-PonteDiPiave",
+            "value": "MtP-P-SanDona-PonteDiPiave"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-Pramaggiore",
+            "value": "MtP-P-SanDona-Pramaggiore"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-Roncade",
+            "value": "MtP-P-SanDona-Roncade"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-SanBiagioCallalta",
+            "value": "MtP-P-SanDona-SanBiagioCallalta"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanDona-TorreDiMosto",
+            "value": "MtP-P-SanDona-TorreDiMosto"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-SanMartino-Loreggia",
+            "value": "MtP-P-SanMartino-Loreggia"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Saonara-Sud",
+            "value": "MtP-P-Saonara-Sud"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Bassano",
+            "value": "MtP-P-Tomba-Bassano"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Breda-di-Piave",
+            "value": "MtP-P-Tomba-Breda-di-Piave"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Caerano",
+            "value": "MtP-P-Tomba-Caerano"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Casale",
+            "value": "MtP-P-Tomba-Casale"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Dueville",
+            "value": "MtP-P-Tomba-Dueville"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Massanzago",
+            "value": "MtP-P-Tomba-Massanzago"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Montebelluna",
+            "value": "MtP-P-Tomba-Montebelluna"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Pederobba",
+            "value": "MtP-P-Tomba-Pederobba"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Quero",
+            "value": "MtP-P-Tomba-Quero"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Riese",
+            "value": "MtP-P-Tomba-Riese"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-RomanoEzzelino",
+            "value": "MtP-P-Tomba-RomanoEzzelino"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Roncade",
+            "value": "MtP-P-Tomba-Roncade"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Rosa",
+            "value": "MtP-P-Tomba-Rosa"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-S-Biagio-Callalta",
+            "value": "MtP-P-Tomba-S-Biagio-Callalta"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Trebaseleghe",
+            "value": "MtP-P-Tomba-Trebaseleghe"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Treviso",
+            "value": "MtP-P-Tomba-Treviso"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-Valdobbiadene",
+            "value": "MtP-P-Tomba-Valdobbiadene"
+          },
+          {
+            "selected": false,
+            "text": "MtP-P-Tomba-ZeroBranco",
+            "value": "MtP-P-Tomba-ZeroBranco"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Abano-E",
+            "value": "MtP-S-Abano-E"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Abano-Montegrotto-ZI",
+            "value": "MtP-S-Abano-Montegrotto-ZI"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Abano-N",
+            "value": "MtP-S-Abano-N"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Abano-NE",
+            "value": "MtP-S-Abano-NE"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Albettone-Sossano-Horn-60",
+            "value": "MtP-S-Albettone-Sossano-Horn-60"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Bagnoli-Local-Sect8",
+            "value": "MtP-S-Bagnoli-Local-Sect8"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Bagnoli-Omni",
+            "value": "MtP-S-Bagnoli-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Bagnoli-Ovest",
+            "value": "MtP-S-Bagnoli-Ovest"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Bassano-SRM-NW",
+            "value": "MtP-S-Bassano-SRM-NW"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Berici-SE",
+            "value": "MtP-S-Berici-SE"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Borgoricco-Omni",
+            "value": "MtP-S-Borgoricco-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Borgoricco-Ovest",
+            "value": "MtP-S-Borgoricco-Ovest"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Borgoricco-SE",
+            "value": "MtP-S-Borgoricco-SE"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Bolzano-Vicentino-Horn-30",
+            "value": "MtP-S-Camisano-Bolzano-Vicentino-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Campodoro-Horn-30",
+            "value": "MtP-S-Camisano-Campodoro-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Grantorto-Horn-30",
+            "value": "MtP-S-Camisano-Grantorto-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Grisignano-Horn-30",
+            "value": "MtP-S-Camisano-Grisignano-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Longare-Horn-30",
+            "value": "MtP-S-Camisano-Longare-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Mancamento-Horn-30",
+            "value": "MtP-S-Camisano-Mancamento-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Mestrino-Horn-30",
+            "value": "MtP-S-Camisano-Mestrino-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-NE-Horn-30",
+            "value": "MtP-S-Camisano-NE-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Piazzola-Horn-30",
+            "value": "MtP-S-Camisano-Piazzola-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Santa-Maria-Horn-90",
+            "value": "MtP-S-Camisano-Santa-Maria-Horn-90"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Torri-Horn-30",
+            "value": "MtP-S-Camisano-Torri-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Vanzo-Horn-60",
+            "value": "MtP-S-Camisano-Vanzo-Horn-60"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Veggiano-Horn-30",
+            "value": "MtP-S-Camisano-Veggiano-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Camisano-Vicenza-Horn-30",
+            "value": "MtP-S-Camisano-Vicenza-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Campodarsego-Omni",
+            "value": "MtP-S-Campodarsego-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Castagnara-SectEst-5G",
+            "value": "MtP-S-Castagnara-SectEst-5G"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Castagnara-SectNord-5G",
+            "value": "MtP-S-Castagnara-SectNord-5G"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Castagnara-SectOvest-5G",
+            "value": "MtP-S-Castagnara-SectOvest-5G"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Castagnara-SectSud-5G",
+            "value": "MtP-S-Castagnara-SectSud-5G"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Conegliano-Sud",
+            "value": "MtP-S-Conegliano-Sud"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Galileo-Pd-Est",
+            "value": "MtP-S-Galileo-Pd-Est"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Mestre-Sud",
+            "value": "MtP-S-Mestre-Sud"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Mira-Gambarare-N-Horn-90",
+            "value": "MtP-S-Mira-Gambarare-N-Horn-90"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Mira-Omni",
+            "value": "MtP-S-Mira-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Mira-Sud",
+            "value": "MtP-S-Mira-Sud"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Resana-Omni",
+            "value": "MtP-S-Resana-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanDona-Omni",
+            "value": "MtP-S-SanDona-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanDona-Salgareda",
+            "value": "MtP-S-SanDona-Salgareda"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanDona-SE",
+            "value": "MtP-S-SanDona-SE"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanMartino-N",
+            "value": "MtP-S-SanMartino-N"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanMartino-S",
+            "value": "MtP-S-SanMartino-S"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-SanMartino-W",
+            "value": "MtP-S-SanMartino-W"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Saonara-Est",
+            "value": "MtP-S-Saonara-Est"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Saonara-Omni",
+            "value": "MtP-S-Saonara-Omni"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Saonara-Sectors",
+            "value": "MtP-S-Saonara-Sectors"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Treviso-TC-N",
+            "value": "MtP-S-Treviso-TC-N"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Treviso-TC-S",
+            "value": "MtP-S-Treviso-TC-S"
+          },
+          {
+            "selected": false,
+            "text": "MtP-S-Vicenza-SW-Horn-30",
+            "value": "MtP-S-Vicenza-SW-Horn-30"
+          },
+          {
+            "selected": false,
+            "text": "nx-caldera-1",
+            "value": "nx-caldera-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-caldera-2",
+            "value": "nx-caldera-2"
+          },
+          {
+            "selected": false,
+            "text": "nx-camisano-1",
+            "value": "nx-camisano-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-camisano-2",
+            "value": "nx-camisano-2"
+          },
+          {
+            "selected": false,
+            "text": "nx-castagnara-1",
+            "value": "nx-castagnara-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-castagnara-2",
+            "value": "nx-castagnara-2"
+          },
+          {
+            "selected": false,
+            "text": "nx-mestre-1",
+            "value": "nx-mestre-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-mestre-2",
+            "value": "nx-mestre-2"
+          },
+          {
+            "selected": false,
+            "text": "nx-mestre-server-1",
+            "value": "nx-mestre-server-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-mestre-server-2",
+            "value": "nx-mestre-server-2"
+          },
+          {
+            "selected": false,
+            "text": "nx-vsix-1",
+            "value": "nx-vsix-1"
+          },
+          {
+            "selected": false,
+            "text": "nx-vsix-2",
+            "value": "nx-vsix-2"
+          },
+          {
+            "selected": false,
+            "text": "OBM-Camisano-POD-A-1",
+            "value": "OBM-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "OBM-Camisano-POD-A-2",
+            "value": "OBM-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "OBM-Mestre-Server",
+            "value": "OBM-Mestre-Server"
+          },
+          {
+            "selected": false,
+            "text": "OBM-Mestre-VOIP",
+            "value": "OBM-Mestre-VOIP"
+          },
+          {
+            "selected": false,
+            "text": "PDU-Camisano-POD-A-1",
+            "value": "PDU-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "PDU-Camisano-POD-A-2",
+            "value": "PDU-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Abano-CaMura-M-NV2",
+            "value": "PtP-Abano-CaMura-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Abano-CaMura-S-NV2",
+            "value": "PtP-Abano-CaMura-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Atlas-M-AF24",
+            "value": "PtP-Atlas-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Atlas-S-AF24",
+            "value": "PtP-Atlas-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Kering-M-HI-CG24",
+            "value": "PtP-Bagnoli-Kering-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Kering-S-LO-CG24",
+            "value": "PtP-Bagnoli-Kering-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Panther-M-HI-CG24",
+            "value": "PtP-Bagnoli-Panther-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Panther-S-LO-CG24",
+            "value": "PtP-Bagnoli-Panther-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Polistudio-M-HI-CG24",
+            "value": "PtP-Bagnoli-Polistudio-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Polistudio-S-LO-CG24",
+            "value": "PtP-Bagnoli-Polistudio-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Schneider-M-HI-CG24",
+            "value": "PtP-Bagnoli-Schneider-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Bagnoli-Schneider-S-LO-CG24",
+            "value": "PtP-Bagnoli-Schneider-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Ballan-Sede-2-M-NV2",
+            "value": "PtP-Ballan-Sede-2-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Ballan-Sede-2-S-NV2",
+            "value": "PtP-Ballan-Sede-2-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Berici-Albettone-M-HI-CG24",
+            "value": "PtP-Berici-Albettone-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Berici-Albettone-S-LO-CG24",
+            "value": "PtP-Berici-Albettone-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-PegasoIndustries-M-HI-CG80",
+            "value": "PtP-Borgoricco-PegasoIndustries-M-HI-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-PegasoIndustries-S-LO-CG80",
+            "value": "PtP-Borgoricco-PegasoIndustries-S-LO-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-Resana-M-AF24",
+            "value": "PtP-Borgoricco-Resana-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-Resana-NV2",
+            "value": "PtP-Borgoricco-Resana-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-Resana-S-AF24",
+            "value": "PtP-Borgoricco-Resana-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-SanMartino-M-NV2",
+            "value": "PtP-Borgoricco-SanMartino-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Borgoricco-SanMartino-S-NV2",
+            "value": "PtP-Borgoricco-SanMartino-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-BoscoloBielo_Master",
+            "value": "PtP-BoscoloBielo_Master"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Calenda-Magazzino-M-NV2",
+            "value": "PtP-Calenda-Magazzino-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Calenda-Magazzino-S-NV2",
+            "value": "PtP-Calenda-Magazzino-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Albettone-M-HI-CG13",
+            "value": "PtP-Camisano-Albettone-M-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Albettone-M-HI-CG24",
+            "value": "PtP-Camisano-Albettone-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Albettone-S-LO-CG13",
+            "value": "PtP-Camisano-Albettone-S-LO-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Albettone-S-LO-CG24",
+            "value": "PtP-Camisano-Albettone-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Array-System-M-HI-CG24",
+            "value": "PtP-Camisano-Array-System-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Array-System-S-LO-CG24",
+            "value": "PtP-Camisano-Array-System-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Autec-M-HI-CG13",
+            "value": "PtP-Camisano-Autec-M-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Autec-S-LO-CG13",
+            "value": "PtP-Camisano-Autec-S-LO-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Daniel-M-HI-CG24",
+            "value": "PtP-Camisano-Daniel-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Eurotrading-M-HI-CG24",
+            "value": "PtP-Camisano-Eurotrading-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Eurotrading-S-LO-CG24",
+            "value": "PtP-Camisano-Eurotrading-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Gibus-M-HI-CG13",
+            "value": "PtP-Camisano-Gibus-M-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-Gibus-S-LO-CG13",
+            "value": "PtP-Camisano-Gibus-S-LO-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-SanMartino-M-LO-CG11",
+            "value": "PtP-Camisano-SanMartino-M-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Camisano-SanMartino-S-HI-CG11",
+            "value": "PtP-Camisano-SanMartino-S-HI-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Campodarsego-Borgoricco-M-LO-CG24",
+            "value": "PtP-Campodarsego-Borgoricco-M-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Campodarsego-Borgoricco-S-HI-CG24",
+            "value": "PtP-Campodarsego-Borgoricco-S-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CaSpineda-Bortolan-M-NV2",
+            "value": "PtP-CaSpineda-Bortolan-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CaSpineda-Bortolan-S-NV2",
+            "value": "PtP-CaSpineda-Bortolan-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CaSpineda-TorreC-M-NV2",
+            "value": "PtP-CaSpineda-TorreC-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CaSpineda-TorreC-S-NV2",
+            "value": "PtP-CaSpineda-TorreC-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Atlas-M-HI-CG24",
+            "value": "PtP-Castagnara-Atlas-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Atlas-S-LO-CG24",
+            "value": "PtP-Castagnara-Atlas-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Berici-M-HI-CG11",
+            "value": "PtP-Castagnara-Berici-M-HI-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Berici-S-LO-CG11",
+            "value": "PtP-Castagnara-Berici-S-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Camisano-M-HI-CG11",
+            "value": "PtP-Castagnara-Camisano-M-HI-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Camisano-S-LO-CG11",
+            "value": "PtP-Castagnara-Camisano-S-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Campodarsego-M-HI-CG24",
+            "value": "PtP-Castagnara-Campodarsego-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Campodarsego-S-LO-CG24",
+            "value": "PtP-Castagnara-Campodarsego-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Interpolimeri-M-HI-CG24",
+            "value": "PtP-Castagnara-Interpolimeri-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Interpolimeri-S-LO-CG24",
+            "value": "PtP-Castagnara-Interpolimeri-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Mira-M-HI-11-CG11",
+            "value": "PtP-Castagnara-Mira-M-HI-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-Mira-S-LO-11-CG11",
+            "value": "PtP-Castagnara-Mira-S-LO-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-SiteBySite-M-HI-CG80",
+            "value": "PtP-Castagnara-SiteBySite-M-HI-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-SiteBySite-S-LO-CG80",
+            "value": "PtP-Castagnara-SiteBySite-S-LO-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-VHT-M-HI-11-CG11",
+            "value": "PtP-Castagnara-VHT-M-HI-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Castagnara-VHT-S-LO-11-CG11",
+            "value": "PtP-Castagnara-VHT-S-LO-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cavinato-M-NV2",
+            "value": "PtP-Cavinato-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cavinato-S-NV2",
+            "value": "PtP-Cavinato-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cereal-Docks-A-Cereal-Docks-B-M-HI-CG80",
+            "value": "PtP-Cereal-Docks-A-Cereal-Docks-B-M-HI-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cereal-Docks-A-Cereal-Docks-B-S-LO-CG80",
+            "value": "PtP-Cereal-Docks-A-Cereal-Docks-B-S-LO-CG80"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cimm-Sede-B-M-NV2",
+            "value": "PtP-Cimm-Sede-B-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Cimm-Sede-B-S-NV2",
+            "value": "PtP-Cimm-Sede-B-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-ContePioveneMaster",
+            "value": "PtP-ContePioveneMaster"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CPESrl-Cartigliano-M-NV2",
+            "value": "PtP-CPESrl-Cartigliano-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CPESrl-Cartigliano-S-NV2",
+            "value": "PtP-CPESrl-Cartigliano-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CPESrl-Sartori-Nove-M-NV2",
+            "value": "PtP-CPESrl-Sartori-Nove-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-CPESrl-Sartori-Nove-S-NV2",
+            "value": "PtP-CPESrl-Sartori-Nove-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Dualinox-M-NV2",
+            "value": "PtP-Dualinox-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Dualinox-S-NV2",
+            "value": "PtP-Dualinox-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Elite-Ambiente-Sede-2-M-NV2",
+            "value": "PtP-Elite-Ambiente-Sede-2-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Elite-Ambiente-Sede-2-S-NV2",
+            "value": "PtP-Elite-Ambiente-Sede-2-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-Abano-M-NV2",
+            "value": "PtP-Galileo-Abano-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-Abano-S-NV2",
+            "value": "PtP-Galileo-Abano-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-Bagnoli-S-HI-CG13",
+            "value": "PtP-Galileo-Bagnoli-S-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Noventa-M-AF24",
+            "value": "PtP-Galileo-MSA-Noventa-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Noventa-M-NV2",
+            "value": "PtP-Galileo-MSA-Noventa-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Noventa-S-AF24",
+            "value": "PtP-Galileo-MSA-Noventa-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Noventa-S-NV2",
+            "value": "PtP-Galileo-MSA-Noventa-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Padova-M-AF24",
+            "value": "PtP-Galileo-MSA-Padova-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Galileo-MSA-Padova-S-AF24",
+            "value": "PtP-Galileo-MSA-Padova-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-MarinaDiVeneziaCavallino-M-HI-CG11",
+            "value": "PtP-Mestre-MarinaDiVeneziaCavallino-M-HI-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-MarinaDiVeneziaCavallino-S-LO-CG11",
+            "value": "PtP-Mestre-MarinaDiVeneziaCavallino-S-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-MarinaVenezia-M-NV2",
+            "value": "PtP-Mestre-MarinaVenezia-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-MarinaVenezia-S-NV2",
+            "value": "PtP-Mestre-MarinaVenezia-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-Venezia-M-LO-CG24",
+            "value": "PtP-Mestre-Venezia-M-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mestre-Venezia-S-HI-CG24",
+            "value": "PtP-Mestre-Venezia-S-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Saonara-M-LO-CG13",
+            "value": "PtP-Mira-Saonara-M-LO-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Saonara-M-NV2",
+            "value": "PtP-Mira-Saonara-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Saonara-S-HI-CG13",
+            "value": "PtP-Mira-Saonara-S-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Saonara-S-NV2",
+            "value": "PtP-Mira-Saonara-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Venezia-Tronchetto-M-NV2",
+            "value": "PtP-Mira-Venezia-Tronchetto-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Mira-Venezia-Tronchetto-S-NV2",
+            "value": "PtP-Mira-Venezia-Tronchetto-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Modenese-Gastone-SedeA-M-NV2",
+            "value": "PtP-Modenese-Gastone-SedeA-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Modenese-Gastone-SedeA-S-NV2",
+            "value": "PtP-Modenese-Gastone-SedeA-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Modenese-Gastone-SedeC-M-NV2",
+            "value": "PtP-Modenese-Gastone-SedeC-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Montecchio-Calp-M-AF24",
+            "value": "PtP-Montecchio-Calp-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Montecchio-Calp-S-AF24",
+            "value": "PtP-Montecchio-Calp-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Abano-M-AF5",
+            "value": "PtP-Padova-Abano-M-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Abano-S-AF5",
+            "value": "PtP-Padova-Abano-S-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Galileo-M-AF24",
+            "value": "PtP-Padova-Galileo-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Galileo-M-AF5",
+            "value": "PtP-Padova-Galileo-M-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Galileo-S-AF24",
+            "value": "PtP-Padova-Galileo-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Galileo-S-AF5",
+            "value": "PtP-Padova-Galileo-S-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Mira-M-NV2",
+            "value": "PtP-Padova-Mira-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Mira-S-NV2",
+            "value": "PtP-Padova-Mira-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Resana-M-NV2",
+            "value": "PtP-Padova-Resana-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Padova-Resana-S-NV2",
+            "value": "PtP-Padova-Resana-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Resana-Borgoricco-NV2",
+            "value": "PtP-Resana-Borgoricco-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Resana-SanMartino-M-AF24",
+            "value": "PtP-Resana-SanMartino-M-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Resana-SanMartino-S-AF24",
+            "value": "PtP-Resana-SanMartino-S-AF24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Sandona-3B-M-HI-CG24",
+            "value": "PtP-Sandona-3B-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Sandona-3B-S-LO-CG24",
+            "value": "PtP-Sandona-3B-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Codognotto-M-HI-CG24",
+            "value": "PtP-SanDona-Codognotto-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Codognotto-S-LO-CG24",
+            "value": "PtP-SanDona-Codognotto-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Conegliano-M-AF5",
+            "value": "PtP-SanDona-Conegliano-M-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Conegliano-M-NV2",
+            "value": "PtP-SanDona-Conegliano-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Conegliano-S-AF5",
+            "value": "PtP-SanDona-Conegliano-S-AF5"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Conegliano-S-NV2",
+            "value": "PtP-SanDona-Conegliano-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-inglass-M-HI-CG11",
+            "value": "PtP-SanDona-inglass-M-HI-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanDona-Inglass-S-LO-CG11",
+            "value": "PtP-SanDona-Inglass-S-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanMartino-SRM-M-NV2",
+            "value": "PtP-SanMartino-SRM-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanMartino-SRM-S-NV2",
+            "value": "PtP-SanMartino-SRM-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-SanMartino-Tomba-M-LO-CG11",
+            "value": "PtP-SanMartino-Tomba-M-LO-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Sfiti-M-NV2",
+            "value": "PtP-Sfiti-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Sfiti-S-NV2",
+            "value": "PtP-Sfiti-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Texa-M-NV2",
+            "value": "PtP-Texa-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Texa-S-NV2",
+            "value": "PtP-Texa-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-Bassano-M-LO-CG13",
+            "value": "PtP-Tomba-Bassano-M-LO-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-Bassano-S-HI-CG13",
+            "value": "PtP-Tomba-Bassano-S-HI-CG13"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-DigitalMind-M-LO-CG7",
+            "value": "PtP-Tomba-DigitalMind-M-LO-CG7"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-DigitalMind-S-HI-CG7",
+            "value": "PtP-Tomba-DigitalMind-S-HI-CG7"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-SanDona-M-LO-11-CG11",
+            "value": "PtP-Tomba-SanDona-M-LO-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-SanDona-S-HI-11-CG11",
+            "value": "PtP-Tomba-SanDona-S-HI-11-CG11"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-VisionLab-M-LO-CG7",
+            "value": "PtP-Tomba-VisionLab-M-LO-CG7"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-VisionLab-S-HI-CG7",
+            "value": "PtP-Tomba-VisionLab-S-HI-CG7"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-Zamperla-M-NV2",
+            "value": "PtP-Tomba-Zamperla-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Tomba-Zamperla-S-NV2",
+            "value": "PtP-Tomba-Zamperla-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Transpack-Nesite-M-NV2",
+            "value": "PtP-Transpack-Nesite-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Transpack-Nesite-S-NV2",
+            "value": "PtP-Transpack-Nesite-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Transpack-ViaDaVinci-M-NV2",
+            "value": "PtP-Transpack-ViaDaVinci-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Transpack-ViaDaVinci-S-NV2",
+            "value": "PtP-Transpack-ViaDaVinci-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Valbona-Lozzo-Agrilux-M-NV2",
+            "value": "PtP-Valbona-Lozzo-Agrilux-M-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Valbona-Lozzo-Agrilux-S-NV2",
+            "value": "PtP-Valbona-Lozzo-Agrilux-S-NV2"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Venezia-VHT-M-HI-CG24",
+            "value": "PtP-Venezia-VHT-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Venezia-VHT-S-LO-CG24",
+            "value": "PtP-Venezia-VHT-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Vicenza-Zamperla-M-HI-CG24",
+            "value": "PtP-Vicenza-Zamperla-M-HI-CG24"
+          },
+          {
+            "selected": false,
+            "text": "PtP-Vicenza-Zamperla-S-LO-CG24",
+            "value": "PtP-Vicenza-Zamperla-S-LO-CG24"
+          },
+          {
+            "selected": false,
+            "text": "STS-Camisano-POD-A-1",
+            "value": "STS-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "STS-Camisano-POD-A-2",
+            "value": "STS-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "STS-Camisano-POD-A-3",
+            "value": "STS-Camisano-POD-A-3"
+          },
+          {
+            "selected": false,
+            "text": "STS-Camisano-POD-A-4",
+            "value": "STS-Camisano-POD-A-4"
+          },
+          {
+            "selected": false,
+            "text": "SWC-Bagnoli-1",
+            "value": "SWC-Bagnoli-1"
+          },
+          {
+            "selected": false,
+            "text": "swc-bagnoli-2",
+            "value": "swc-bagnoli-2"
+          },
+          {
+            "selected": false,
+            "text": "swc-bagnoli-3",
+            "value": "swc-bagnoli-3"
+          },
+          {
+            "selected": false,
+            "text": "swc-bagnoli-4",
+            "value": "swc-bagnoli-4"
+          },
+          {
+            "selected": false,
+            "text": "SWC-Camisano-POD-A-MSC",
+            "value": "SWC-Camisano-POD-A-MSC"
+          },
+          {
+            "selected": false,
+            "text": "SWC-Camisano-POD-A-PDU",
+            "value": "SWC-Camisano-POD-A-PDU"
+          },
+          {
+            "selected": false,
+            "text": "SWC-Camisano-POD-A-POE",
+            "value": "SWC-Camisano-POD-A-POE"
+          },
+          {
+            "selected": false,
+            "text": "SWC-Montebello-1",
+            "value": "SWC-Montebello-1"
+          },
+          {
+            "selected": false,
+            "text": "swc-tomba-2",
+            "value": "swc-tomba-2"
+          },
+          {
+            "selected": false,
+            "text": "swc-vicenza-1",
+            "value": "swc-vicenza-1"
+          },
+          {
+            "selected": false,
+            "text": "UPS-Camisano-POD-A-1",
+            "value": "UPS-Camisano-POD-A-1"
+          },
+          {
+            "selected": false,
+            "text": "UPS-Camisano-POD-A-2",
+            "value": "UPS-Camisano-POD-A-2"
+          },
+          {
+            "selected": false,
+            "text": "UPS-Camisano-POD-TR1-1",
+            "value": "UPS-Camisano-POD-TR1-1"
+          },
+          {
+            "selected": false,
+            "text": "UPS-Castagnara",
+            "value": "UPS-Castagnara"
+          },
+          {
+            "selected": false,
+            "text": "vcenter1",
+            "value": "vcenter1"
+          },
+          {
+            "selected": false,
+            "text": "WLS-2B-exStudioBorgatoRenzo",
+            "value": "WLS-2B-exStudioBorgatoRenzo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-3B-Annone",
+            "value": "WLS-3B-Annone"
+          },
+          {
+            "selected": false,
+            "text": "WLS-3B-via-Calnova-A1",
+            "value": "WLS-3B-via-Calnova-A1"
+          },
+          {
+            "selected": false,
+            "text": "WLS-3B-via-Calnova-A2",
+            "value": "WLS-3B-via-Calnova-A2"
+          },
+          {
+            "selected": false,
+            "text": "WLS-3PS-Imasaf",
+            "value": "WLS-3PS-Imasaf"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Accessoria-ExOfficine-Bano",
+            "value": "WLS-Accessoria-ExOfficine-Bano"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Adriatica-Commerciale-Macchine",
+            "value": "WLS-Adriatica-Commerciale-Macchine"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Aertesi-Conselve",
+            "value": "WLS-Aertesi-Conselve"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Aertesi-OneDiFonte",
+            "value": "WLS-Aertesi-OneDiFonte"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Agricola-Pelosin-exCorradi",
+            "value": "WLS-Agricola-Pelosin-exCorradi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Alba-Elettronica",
+            "value": "WLS-Alba-Elettronica"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Alessi",
+            "value": "WLS-Alessi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Alifax",
+            "value": "WLS-Alifax"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Alux-exAnodizzazioneModerna",
+            "value": "WLS-Alux-exAnodizzazioneModerna"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Anima-Terra",
+            "value": "WLS-Anima-Terra"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Arco",
+            "value": "WLS-Arco"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Area-B",
+            "value": "WLS-Area-B"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Area-Impianti",
+            "value": "WLS-Area-Impianti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Artel",
+            "value": "WLS-Artel"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Artigiana-Stampi",
+            "value": "WLS-Artigiana-Stampi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ASB-Consulting",
+            "value": "WLS-ASB-Consulting"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Asolo-Bevande",
+            "value": "WLS-Asolo-Bevande"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Assigiotto",
+            "value": "WLS-Assigiotto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ATA-Srl",
+            "value": "WLS-ATA-Srl"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Atlas-Filtri-Italia-exAlbignasego",
+            "value": "WLS-Atlas-Filtri-Italia-exAlbignasego"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Atlas-Varisco",
+            "value": "WLS-Atlas-Varisco"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Avv-e-Comm",
+            "value": "WLS-Avv-e-Comm"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Baggio-De-Sordi-Giaviera-1",
+            "value": "WLS-Baggio-De-Sordi-Giaviera-1"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Baggio-De-Sordi-Nervesa-2",
+            "value": "WLS-Baggio-De-Sordi-Nervesa-2"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ballan",
+            "value": "WLS-Ballan"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Barbieri",
+            "value": "WLS-Barbieri"
+          },
+          {
+            "selected": false,
+            "text": "WLS-BDA-Solution",
+            "value": "WLS-BDA-Solution"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Bea-Ingranaggi-exTICRoulunds",
+            "value": "WLS-Bea-Ingranaggi-exTICRoulunds"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Berto-Bovolenta",
+            "value": "WLS-Berto-Bovolenta"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Biasuzzi",
+            "value": "WLS-Biasuzzi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Biosigma",
+            "value": "WLS-Biosigma"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Bitubo",
+            "value": "WLS-Bitubo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Bonetto",
+            "value": "WLS-Bonetto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Bosco-Malera",
+            "value": "WLS-Bosco-Malera"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Boscolo-Bielo-Mestre",
+            "value": "WLS-Boscolo-Bielo-Mestre"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Brazzale-Campodoro",
+            "value": "WLS-Brazzale-Campodoro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Brazzale-Costabissara",
+            "value": "WLS-Brazzale-Costabissara"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Bresolin",
+            "value": "WLS-Bresolin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Brian-Newsom",
+            "value": "WLS-Brian-Newsom"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cadline",
+            "value": "WLS-Cadline"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Caldieri",
+            "value": "WLS-Caldieri"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Calenda",
+            "value": "WLS-Calenda"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Canton-e-Associati",
+            "value": "WLS-Canton-e-Associati"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cartoveneta",
+            "value": "WLS-Cartoveneta"
+          },
+          {
+            "selected": false,
+            "text": "WLS-CasottoAbitazione",
+            "value": "WLS-CasottoAbitazione"
+          },
+          {
+            "selected": false,
+            "text": "WLS-CaSpineda",
+            "value": "WLS-CaSpineda"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cattolica-Services",
+            "value": "WLS-Cattolica-Services"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cercato-e-Fracasso",
+            "value": "WLS-Cercato-e-Fracasso"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Chiclitic",
+            "value": "WLS-Chiclitic"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ciemmeplast",
+            "value": "WLS-Ciemmeplast"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cimm",
+            "value": "WLS-Cimm"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cividac",
+            "value": "WLS-Cividac"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Clea",
+            "value": "WLS-Clea"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Clea-Sede-2",
+            "value": "WLS-Clea-Sede-2"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Clinica-Dentale-Torri",
+            "value": "WLS-Clinica-Dentale-Torri"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Codogno-Maurizio",
+            "value": "WLS-Codogno-Maurizio"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comas",
+            "value": "WLS-Comas"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comel",
+            "value": "WLS-Comel"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Camisano-Biblioteca",
+            "value": "WLS-Comune-Camisano-Biblioteca"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Camisano-Scuole",
+            "value": "WLS-Comune-Camisano-Scuole"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Camisano-Scuole-DonPerin",
+            "value": "WLS-Comune-Camisano-Scuole-DonPerin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Camisano-Sede",
+            "value": "WLS-Comune-Camisano-Sede"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Saonara-Biblioteca",
+            "value": "WLS-Comune-Saonara-Biblioteca"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Saonara-Municipio",
+            "value": "WLS-Comune-Saonara-Municipio"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Saonara-Scuola-Elementare-via-Bachelet",
+            "value": "WLS-Comune-Saonara-Scuola-Elementare-via-Bachelet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Saonara-Scuole-Medie-via-Bachelet",
+            "value": "WLS-Comune-Saonara-Scuole-Medie-via-Bachelet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Comune-Saonara-Scuole-via-Don-Milani",
+            "value": "WLS-Comune-Saonara-Scuole-via-Don-Milani"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Consutec",
+            "value": "WLS-Consutec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Conte-Piovene",
+            "value": "WLS-Conte-Piovene"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Conte-Piovene-Villa",
+            "value": "WLS-Conte-Piovene-Villa"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Corapel",
+            "value": "WLS-Corapel"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Corso-Italia",
+            "value": "WLS-Corso-Italia"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cosmap",
+            "value": "WLS-Cosmap"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Cotralog",
+            "value": "WLS-Cotralog"
+          },
+          {
+            "selected": false,
+            "text": "WLS-CPA",
+            "value": "WLS-CPA"
+          },
+          {
+            "selected": false,
+            "text": "WLS-CPE-Srl-ExCpeErediMonti",
+            "value": "WLS-CPE-Srl-ExCpeErediMonti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Criocabin",
+            "value": "WLS-Criocabin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Dataselice",
+            "value": "WLS-Dataselice"
+          },
+          {
+            "selected": false,
+            "text": "WLS-De-Tacchi",
+            "value": "WLS-De-Tacchi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Digital-Blue",
+            "value": "WLS-Digital-Blue"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Dinagas",
+            "value": "WLS-Dinagas"
+          },
+          {
+            "selected": false,
+            "text": "WLS-DMO-Pernumia",
+            "value": "WLS-DMO-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Drawlight",
+            "value": "WLS-Drawlight"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Dualinox",
+            "value": "WLS-Dualinox"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Duolabs",
+            "value": "WLS-Duolabs"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Eco-management-Ecorex",
+            "value": "WLS-Eco-management-Ecorex"
+          },
+          {
+            "selected": false,
+            "text": "WLS-EcoRecuperi",
+            "value": "WLS-EcoRecuperi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Elca",
+            "value": "WLS-Elca"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Eleven",
+            "value": "WLS-Eleven"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Elite-Ambiente",
+            "value": "WLS-Elite-Ambiente"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Emmegi",
+            "value": "WLS-Emmegi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-English-International-School",
+            "value": "WLS-English-International-School"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Enneci",
+            "value": "WLS-Enneci"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Enoveneta",
+            "value": "WLS-Enoveneta"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Enrico-Conte",
+            "value": "WLS-Enrico-Conte"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Epiu",
+            "value": "WLS-Epiu"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Epiu-Abano",
+            "value": "WLS-Epiu-Abano"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Epiu-Trebaseleghe",
+            "value": "WLS-Epiu-Trebaseleghe"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Erma-Logistica",
+            "value": "WLS-Erma-Logistica"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Errebi",
+            "value": "WLS-Errebi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ervas",
+            "value": "WLS-Ervas"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Espe",
+            "value": "WLS-Espe"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Essemme",
+            "value": "WLS-Essemme"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Eurotrading-Pd",
+            "value": "WLS-Eurotrading-Pd"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Execo",
+            "value": "WLS-Execo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Facco",
+            "value": "WLS-Facco"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Fanton",
+            "value": "WLS-Fanton"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Farmacia-al-Duomo-Sandrigo",
+            "value": "WLS-Farmacia-al-Duomo-Sandrigo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Fisc",
+            "value": "WLS-Fisc"
+          },
+          {
+            "selected": false,
+            "text": "WLS-FISM-Padova",
+            "value": "WLS-FISM-Padova"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Flowers-Express",
+            "value": "WLS-Flowers-Express"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Fondazione-Teatro-Comunale",
+            "value": "WLS-Fondazione-Teatro-Comunale"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Fondazione-Teatro-Eden",
+            "value": "WLS-Fondazione-Teatro-Eden"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Forrec",
+            "value": "WLS-Forrec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Francesco-Barduca",
+            "value": "WLS-Francesco-Barduca"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Franco-Fabbri",
+            "value": "WLS-Franco-Fabbri"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Gallo-Legnami",
+            "value": "WLS-Gallo-Legnami"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Gasnet",
+            "value": "WLS-Gasnet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Giada",
+            "value": "WLS-Giada"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Gianni-Vecchiato",
+            "value": "WLS-Gianni-Vecchiato"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Gibus-Veggiano",
+            "value": "WLS-Gibus-Veggiano"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Girardello",
+            "value": "WLS-Girardello"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Girardello-Casa",
+            "value": "WLS-Girardello-Casa"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Girolibero-Bike-Incoming",
+            "value": "WLS-Girolibero-Bike-Incoming"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Graphosystem",
+            "value": "WLS-Graphosystem"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Green-Box",
+            "value": "WLS-Green-Box"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Gtec",
+            "value": "WLS-Gtec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Guidolin",
+            "value": "WLS-Guidolin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Guidolin-Gianni",
+            "value": "WLS-Guidolin-Gianni"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hammeley",
+            "value": "WLS-Hammeley"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hard-Service",
+            "value": "WLS-Hard-Service"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hide",
+            "value": "WLS-Hide"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hidros",
+            "value": "WLS-Hidros"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hilding-Anders",
+            "value": "WLS-Hilding-Anders"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Homes",
+            "value": "WLS-Homes"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Hotel-Millepini",
+            "value": "WLS-Hotel-Millepini"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Idealplus",
+            "value": "WLS-Idealplus"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ideandum",
+            "value": "WLS-Ideandum"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Il-Gufo",
+            "value": "WLS-Il-Gufo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-IMV",
+            "value": "WLS-IMV"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Incide-Engineering",
+            "value": "WLS-Incide-Engineering"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Industrialchimica",
+            "value": "WLS-Industrialchimica"
+          },
+          {
+            "selected": false,
+            "text": "WLS-IndustriaVenetaFilati",
+            "value": "WLS-IndustriaVenetaFilati"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Infonet",
+            "value": "WLS-Infonet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Infoplus-BKP",
+            "value": "WLS-Infoplus-BKP"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Innave",
+            "value": "WLS-Innave"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Insalata-Dell-Orto",
+            "value": "WLS-Insalata-Dell-Orto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Isolgomma",
+            "value": "WLS-Isolgomma"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Isomed",
+            "value": "WLS-Isomed"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Italbras",
+            "value": "WLS-Italbras"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Italian-Solar",
+            "value": "WLS-Italian-Solar"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Itre-ExBassanSPIN",
+            "value": "WLS-Itre-ExBassanSPIN"
+          },
+          {
+            "selected": false,
+            "text": "WLS-JS-Lavind",
+            "value": "WLS-JS-Lavind"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Kappadue",
+            "value": "WLS-Kappadue"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Lames",
+            "value": "WLS-Lames"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Lan-e-Wan",
+            "value": "WLS-Lan-e-Wan"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Leas",
+            "value": "WLS-Leas"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Lineagem",
+            "value": "WLS-Lineagem"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Lucaprint",
+            "value": "WLS-Lucaprint"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Manifattura-Corona",
+            "value": "WLS-Manifattura-Corona"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Manifattura-Tubi-Gomma",
+            "value": "WLS-Manifattura-Tubi-Gomma"
+          },
+          {
+            "selected": false,
+            "text": "WLS-MariaLuciaDiPasqualPaola",
+            "value": "WLS-MariaLuciaDiPasqualPaola"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Marina-di-Venezia-PD",
+            "value": "WLS-Marina-di-Venezia-PD"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mascar",
+            "value": "WLS-Mascar"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Maspica",
+            "value": "WLS-Maspica"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Massimo-Turrin",
+            "value": "WLS-Massimo-Turrin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Master",
+            "value": "WLS-Master"
+          },
+          {
+            "selected": false,
+            "text": "WLS-MAV-exCalzatureVolpato",
+            "value": "WLS-MAV-exCalzatureVolpato"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mavetec",
+            "value": "WLS-Mavetec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mazzonetto",
+            "value": "WLS-Mazzonetto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Meccanica-Nicoletti",
+            "value": "WLS-Meccanica-Nicoletti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mediterranea-Dese",
+            "value": "WLS-Mediterranea-Dese"
+          },
+          {
+            "selected": false,
+            "text": "WLS-MGR",
+            "value": "WLS-MGR"
+          },
+          {
+            "selected": false,
+            "text": "WLS-MGR-exSystemAndProjects",
+            "value": "WLS-MGR-exSystemAndProjects"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Michele-Rizzo",
+            "value": "WLS-Michele-Rizzo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Milan-Videoispezioni",
+            "value": "WLS-Milan-Videoispezioni"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Miniforms",
+            "value": "WLS-Miniforms"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mitica-Canada",
+            "value": "WLS-Mitica-Canada"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Mitica-Nuova-Sede",
+            "value": "WLS-Mitica-Nuova-Sede"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Modenese-Gastone-Sede-B",
+            "value": "WLS-Modenese-Gastone-Sede-B"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Moratto",
+            "value": "WLS-Moratto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-MSA-Padova-NV2",
+            "value": "WLS-MSA-Padova-NV2"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Nece-Ossidazione",
+            "value": "WLS-Nece-Ossidazione"
+          },
+          {
+            "selected": false,
+            "text": "WLS-New-Box-Campodoro",
+            "value": "WLS-New-Box-Campodoro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-New-Box-Grisignano",
+            "value": "WLS-New-Box-Grisignano"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Nuova-Complat-Campodoro",
+            "value": "WLS-Nuova-Complat-Campodoro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ocem",
+            "value": "WLS-Ocem"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Office-Group",
+            "value": "WLS-Office-Group"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Orion",
+            "value": "WLS-Orion"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ortomec",
+            "value": "WLS-Ortomec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Ortoromi-Villanova",
+            "value": "WLS-Ortoromi-Villanova"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Overall",
+            "value": "WLS-Overall"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Pagin",
+            "value": "WLS-Pagin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Panizzolo-Sede-A",
+            "value": "WLS-Panizzolo-Sede-A"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Panizzolo-Sede-B",
+            "value": "WLS-Panizzolo-Sede-B"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Pantano-Carni",
+            "value": "WLS-Pantano-Carni"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Panther",
+            "value": "WLS-Panther"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Papermoustache",
+            "value": "WLS-Papermoustache"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Pavan",
+            "value": "WLS-Pavan"
+          },
+          {
+            "selected": false,
+            "text": "WLS-PCA-Servizi",
+            "value": "WLS-PCA-Servizi"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Pegaso",
+            "value": "WLS-Pegaso"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Piron",
+            "value": "WLS-Piron"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Plastic-Systems",
+            "value": "WLS-Plastic-Systems"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Plastime",
+            "value": "WLS-Plastime"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Plastotecnica-Bagnoli",
+            "value": "WLS-Plastotecnica-Bagnoli"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Plastotecnica-Pernumia",
+            "value": "WLS-Plastotecnica-Pernumia"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Polo",
+            "value": "WLS-Polo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Prema",
+            "value": "WLS-Prema"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Prima-Zanetti",
+            "value": "WLS-Prima-Zanetti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ProAndFast-exElco",
+            "value": "WLS-ProAndFast-exElco"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ProDoMix",
+            "value": "WLS-ProDoMix"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Pulliero",
+            "value": "WLS-Pulliero"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Raxy-Line",
+            "value": "WLS-Raxy-Line"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Real-Piel",
+            "value": "WLS-Real-Piel"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Renolit",
+            "value": "WLS-Renolit"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ReNT",
+            "value": "WLS-ReNT"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Retal",
+            "value": "WLS-Retal"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Rivetro",
+            "value": "WLS-Rivetro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Roncato-Cadoneghe",
+            "value": "WLS-Roncato-Cadoneghe"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Roncato-Fiumicello",
+            "value": "WLS-Roncato-Fiumicello"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Roncato-Loreggia",
+            "value": "WLS-Roncato-Loreggia"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Roncato-Loreggia-Backup",
+            "value": "WLS-Roncato-Loreggia-Backup"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Rovolon",
+            "value": "WLS-Rovolon"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Royal-Fish",
+            "value": "WLS-Royal-Fish"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sale-e-Pepe",
+            "value": "WLS-Sale-e-Pepe"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Salin",
+            "value": "WLS-Salin"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Samec",
+            "value": "WLS-Samec"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sanypet",
+            "value": "WLS-Sanypet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sauro",
+            "value": "WLS-Sauro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Saving-Pederobba",
+            "value": "WLS-Saving-Pederobba"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Scatolificio-Bozzato",
+            "value": "WLS-Scatolificio-Bozzato"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Segnalstrade",
+            "value": "WLS-Segnalstrade"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Seriplanet",
+            "value": "WLS-Seriplanet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sfiti",
+            "value": "WLS-Sfiti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sfiti-Zerobranco",
+            "value": "WLS-Sfiti-Zerobranco"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sigma",
+            "value": "WLS-Sigma"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sir",
+            "value": "WLS-Sir"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Siro",
+            "value": "WLS-Siro"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sirp",
+            "value": "WLS-Sirp"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Sital-Klima",
+            "value": "WLS-Sital-Klima"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Site-by-Site-sedeVecchia",
+            "value": "WLS-Site-by-Site-sedeVecchia"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Stefani",
+            "value": "WLS-Stefani"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Stiwood",
+            "value": "WLS-Stiwood"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Studio-Contabile-Cavinato",
+            "value": "WLS-Studio-Contabile-Cavinato"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Studio-Storti",
+            "value": "WLS-Studio-Storti"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Studio-Zanon",
+            "value": "WLS-Studio-Zanon"
+          },
+          {
+            "selected": false,
+            "text": "WLS-TCE-Casale",
+            "value": "WLS-TCE-Casale"
+          },
+          {
+            "selected": false,
+            "text": "WLS-TCE-Quarto-Altino",
+            "value": "WLS-TCE-Quarto-Altino"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Tecnoalarm",
+            "value": "WLS-Tecnoalarm"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Tecnosystem",
+            "value": "WLS-Tecnosystem"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Tecnovideo",
+            "value": "WLS-Tecnovideo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Trafimet",
+            "value": "WLS-Trafimet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Transpack-Pontelongo",
+            "value": "WLS-Transpack-Pontelongo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Transpack-Tognana",
+            "value": "WLS-Transpack-Tognana"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Trasporti-Romagna",
+            "value": "WLS-Trasporti-Romagna"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Trevisan",
+            "value": "WLS-Trevisan"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Tutto-Gas",
+            "value": "WLS-Tutto-Gas"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Valbona-Lozzo-Agrilux",
+            "value": "WLS-Valbona-Lozzo-Agrilux"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vecom",
+            "value": "WLS-Vecom"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Veneta-Bearings",
+            "value": "WLS-Veneta-Bearings"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VisioneImpresa",
+            "value": "WLS-VisioneImpresa"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vivo-Agricola-exVignaDogarina",
+            "value": "WLS-Vivo-Agricola-exVignaDogarina"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vivo-Cantine-Meolo",
+            "value": "WLS-Vivo-Cantine-Meolo"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vivo-Cantine-Pramaggiore",
+            "value": "WLS-Vivo-Cantine-Pramaggiore"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vivo-Cantine-Salgareda",
+            "value": "WLS-Vivo-Cantine-Salgareda"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vivo-Cantine-Torre-Di-Mosto",
+            "value": "WLS-Vivo-Cantine-Torre-Di-Mosto"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Vocalap",
+            "value": "WLS-Vocalap"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-Biemme",
+            "value": "WLS-VPF-Biemme"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-Faggian",
+            "value": "WLS-VPF-Faggian"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-FLS-First-Logistic-Solution",
+            "value": "WLS-VPF-FLS-First-Logistic-Solution"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-GFN-Gibellato",
+            "value": "WLS-VPF-GFN-Gibellato"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-Sicom",
+            "value": "WLS-VPF-Sicom"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-Spandex",
+            "value": "WLS-VPF-Spandex"
+          },
+          {
+            "selected": false,
+            "text": "WLS-VPF-Suore-Elisabettine",
+            "value": "WLS-VPF-Suore-Elisabettine"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Wenet",
+            "value": "WLS-Wenet"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Zaino-Foodservices",
+            "value": "WLS-Zaino-Foodservices"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Zaitex-NEW",
+            "value": "WLS-Zaitex-NEW"
+          },
+          {
+            "selected": false,
+            "text": "WLS-ZF-Padova",
+            "value": "WLS-ZF-Padova"
+          },
+          {
+            "selected": false,
+            "text": "WLS-Zorzi-Simone",
+            "value": "WLS-Zorzi-Simone"
+          },
+          {
+            "selected": false,
+            "text": "XR1-Castagnara",
+            "value": "XR1-Castagnara"
+          },
+          {
+            "selected": false,
+            "text": "XR2-VSIX",
+            "value": "XR2-VSIX"
+          },
+          {
+            "selected": false,
+            "text": "XR3-Caldera",
+            "value": "XR3-Caldera"
+          },
+          {
+            "selected": false,
+            "text": "XR4-Mestre",
+            "value": "XR4-Mestre"
+          },
+          {
+            "selected": false,
+            "text": "XR5-Camisano",
+            "value": "XR5-Camisano"
+          }
+        ],
+        "query": "mlist device *",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "ether1-WAN",
+          "value": "ether1-WAN"
+        },
+        "datasource": "AKiPS",
+        "definition": "mlist interface ${device} *",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Interface",
+        "multi": false,
+        "name": "interface",
+        "options": [
+          {
+            "selected": false,
+            "text": "bridgeVoip_Olf",
+            "value": "bridgeVoip_Olf"
+          },
+          {
+            "selected": true,
+            "text": "ether1-WAN",
+            "value": "ether1-WAN"
+          },
+          {
+            "selected": false,
+            "text": "ether10-Voip-Patton",
+            "value": "ether10-Voip-Patton"
+          },
+          {
+            "selected": false,
+            "text": "ether2-Backup",
+            "value": "ether2-Backup"
+          },
+          {
+            "selected": false,
+            "text": "ether3",
+            "value": "ether3"
+          },
+          {
+            "selected": false,
+            "text": "ether4",
+            "value": "ether4"
+          },
+          {
+            "selected": false,
+            "text": "ether5",
+            "value": "ether5"
+          },
+          {
+            "selected": false,
+            "text": "ether6-ConsegnaServizio",
+            "value": "ether6-ConsegnaServizio"
+          },
+          {
+            "selected": false,
+            "text": "ether7",
+            "value": "ether7"
+          },
+          {
+            "selected": false,
+            "text": "ether8",
+            "value": "ether8"
+          },
+          {
+            "selected": false,
+            "text": "ether9-Voip-ATA",
+            "value": "ether9-Voip-ATA"
+          },
+          {
+            "selected": false,
+            "text": "loopback",
+            "value": "loopback"
+          },
+          {
+            "selected": false,
+            "text": "sfp1",
+            "value": "sfp1"
+          },
+          {
+            "selected": false,
+            "text": "vlan-Backup",
+            "value": "vlan-Backup"
+          }
+        ],
+        "query": "mlist interface ${device} *",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "AKiPS Dashboard",
+  "uid": "CEgO3rwWk",
+  "version": 4
+}
