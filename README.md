@@ -1,5 +1,7 @@
 # Grafana AKiPS Data Source
 
+![Build plugin](https://github.com/reddercode/akips-grafana/workflows/Build%20plugin/badge.svg)
+
 A AKiPS plugin for Grafana, allowing exploration and dashboarding in Grafana
 using AKiPS data.
 
