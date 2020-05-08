@@ -8,7 +8,7 @@
 		"dev": "grafana-toolkit plugin:dev",
 		"watch": "grafana-toolkit plugin:dev --watch"
 	},
-	"author": "ECAD Labs",
+	"author": "REDDER Telco S.R.L.",
 	"license": "Apache-2.0",
 	"devDependencies": {
 		"@grafana/data": "^6.6.1",
