@@ -11,11 +11,12 @@
 	"author": "ECAD Labs",
 	"license": "Apache-2.0",
 	"devDependencies": {
-		"@grafana/data": "^6.6.1",
-		"@grafana/toolkit": "^6.6.1",
-		"@grafana/ui": "^6.6.1",
-		"@types/lodash": "latest",
-		"@types/prismjs": "^1.16.0",
-		"typescript": "^3.7.5"
+		"@grafana/data": "^7.2.0",
+		"@grafana/runtime": "^7.2.0",
+		"@grafana/toolkit": "^7.2.0",
+		"@grafana/ui": "^7.2.0",
+		"@types/lodash": "^4.14.161",
+		"@types/prismjs": "^1.16.1",
+		"typescript": "^3.9.7"
 	}
 }

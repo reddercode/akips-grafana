@@ -3,7 +3,6 @@ import {
   AnnotationQueryRequest,
   DataQueryRequest,
   DataQueryResponse,
-  DataSourceApi,
   DataSourceInstanceSettings,
   ScopedVars,
   MutableDataFrame,
@@ -12,6 +11,7 @@ import {
   FieldDTO,
   stringToJsRegex,
 } from '@grafana/data';
+import { DataSourceWithBackend } from '@grafana/runtime';
 import { Query, TSDBRequest, QueryResults, TimeSeries } from './types';
 import { secondsToHms } from './utils';
 
@@ -73,14 +73,13 @@ function getLocalVars(query: DataQueryRequest<Query>, target: Query): ScopedVars
   };
 }
 
-export class DataSource extends DataSourceApi<Query> {
+export class DataSource extends DataSourceWithBackend<Query> {
   static DEFAULT_QUERY =
     'series interval total ${__interval_sec} time "from ${__from_sec} to ${__to_sec}" * "${__device}" "${__child}" "${__attribute}"';
 
   interval = '1m';
 
-  /** @ngInject */
-  constructor(instanceSettings: DataSourceInstanceSettings, private backendSrv: any, private templateSrv: any) {
+  constructor(instanceSettings: DataSourceInstanceSettings) {
     super(instanceSettings);
   }
 
@@ -204,37 +203,37 @@ export class DataSource extends DataSourceApi<Query> {
           new MutableDataFrame(
             r.series?.length !== 0
               ? {
-                  // Time series response
-                  refId: r.refId,
-                  fields: [
-                    ...r.series?.map(s => ({
-                      type: FieldType.number,
-                      name: this.formatLegend(req, queries[r.refId], s.name || ''),
-                      values: s.points?.map(v => v[0]),
-                    })),
-                    // The first time field only is used anyway --eugene
-                    ...((s: TimeSeries | undefined) =>
-                      s
-                        ? [
-                            {
-                              type: FieldType.time,
-                              name: 'Time',
-                              values: s.points?.map(v => v[1]),
-                            },
-                          ]
-                        : [])(r.series?.[0]),
-                  ],
-                }
+                // Time series response
+                refId: r.refId,
+                fields: [
+                  ...r.series?.map(s => ({
+                    type: FieldType.number,
+                    name: this.formatLegend(req, queries[r.refId], s.name || ''),
+                    values: s.points?.map(v => v[0]),
+                  })),
+                  // The first time field only is used anyway --eugene
+                  ...((s: TimeSeries | undefined) =>
+                    s
+                      ? [
+                        {
+                          type: FieldType.time,
+                          name: 'Time',
+                          values: s.points?.map(v => v[1]),
+                        },
+                      ]
+                      : [])(r.series?.[0]),
+                ],
+              }
               : {
-                  // Table response
-                  refId: r.refId,
-                  fields:
-                    r.tables?.[0].columns?.map<FieldDTO>((c, cidx) => ({
-                      type: c.text === 'Value' && cidx === 0 ? FieldType.number : FieldType.string,
-                      name: c.text,
-                      values: r.tables?.[0].rows?.map(r => r[cidx]),
-                    })) || [],
-                }
+                // Table response
+                refId: r.refId,
+                fields:
+                  r.tables?.[0].columns?.map<FieldDTO>((c, cidx) => ({
+                    type: c.text === 'Value' && cidx === 0 ? FieldType.number : FieldType.string,
+                    name: c.text,
+                    values: r.tables?.[0].rows?.map(r => r[cidx]),
+                  })) || [],
+              }
           )
       );
 
