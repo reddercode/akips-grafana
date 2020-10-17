@@ -21,7 +21,7 @@ interface AKIPSQueryFieldState {
 const QUERY_TYPES: Array<SelectableValue<QueryType>> = [
   { label: 'Time series', value: 'time_series' },
   { label: 'Table', value: 'table' },
-  // TODO csv
+  { label: 'CSV', value: 'csv' },
 ];
 
 export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, AKIPSQueryFieldState> {
@@ -179,7 +179,7 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
       : undefined;
   }
 
-  private queryType(): SelectableValue<string> {
+  private queryType(): SelectableValue<QueryType> {
     const { query } = this.props;
     return QUERY_TYPES.find((option) => option.value === query.queryType) || QUERY_TYPES[0];
   }
@@ -261,10 +261,10 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
         <div className="gf-form-inline">
           <div className="gf-form">
             <label className="gf-form-label">Format</label>
-            <Select
+            <Select<QueryType>
               isSearchable={false}
               options={QUERY_TYPES}
-              onChange={(option) => this.changeQuery({ queryType: option.value as QueryType }, true)}
+              onChange={(option) => this.changeQuery({ queryType: option.value }, true)}
               value={this.queryType()}
             />
             {this.props.extOptions ? this.extOptions() : null}

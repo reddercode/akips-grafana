@@ -509,6 +509,33 @@ func (p *GenericResponse) ParseResponse(rd io.Reader) error {
 	return nil
 }
 
+// CSVResponse is used for `get` command
+type CSVResponse [][]string
+
+func (c *CSVResponse) ParseResponse(rd io.Reader) error {
+	res := [][]string{}
+	sc := bufio.NewScanner(rd)
+
+	for sc.Scan() {
+		if e, ok := isError(sc.Text()); ok {
+			return fmt.Errorf("akips: %s", e)
+		}
+
+		v, err := splitCSV(sc.Text())
+		if err != nil {
+			return ErrFields
+		}
+		res = append(res, v)
+	}
+
+	if err := sc.Err(); err != nil {
+		return err
+	}
+	*c = res
+
+	return nil
+}
+
 type TestResponse struct{}
 
 func (t TestResponse) ParseResponse(rd io.Reader) error {

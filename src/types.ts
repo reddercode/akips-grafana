@@ -1,6 +1,6 @@
 import { DataQuery } from '@grafana/data';
 
-export type QueryType = 'table' | 'time_series';
+export type QueryType = 'table' | 'time_series' | 'csv';
 
 export interface Query extends DataQuery {
   queryType?: QueryType;

@@ -66,7 +66,7 @@ func (a *AKIPSDatasource) QueryData(ctx context.Context, req *backend.QueryDataR
 const (
 	queryTable      = "table"
 	queryTimeSeries = "time_series"
-	fmtFrames       = "frames"
+	queryCSV        = "csv"
 )
 
 func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Config, dq *backend.DataQuery) (backend.DataResponse, error) {
@@ -97,12 +97,20 @@ func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Confi
 		return backend.DataResponse{Error: err}, nil
 	}
 
+	meta := data.FrameMeta{ExecutedQueryString: queryStr}
+
+	if query.query.QueryType == "csv" {
+		var akipsResponse akips.CSVResponse
+		if err := akipsResponse.ParseResponse(res.Body); err != nil {
+			return backend.DataResponse{Error: err}, nil
+		}
+		return processCSV(akipsResponse, &query, &meta)
+	}
+
 	var akipsResponse akips.GenericResponse
 	if err := akipsResponse.ParseResponse(res.Body); err != nil {
 		return backend.DataResponse{Error: err}, nil
 	}
-
-	meta := data.FrameMeta{ExecutedQueryString: queryStr}
 
 	switch query.query.QueryType {
 	case queryTable:
@@ -110,6 +118,7 @@ func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Confi
 	default:
 		return processTimeSeries(akipsResponse, &query, &meta)
 	}
+
 }
 
 func fieldName(e *akips.GenericResponseEntry) string {
@@ -305,19 +314,61 @@ func processTable(akipsResponse akips.GenericResponse, query *query, frameMeta *
 			data.NewField("Attribute", nil, pca.attribute))
 	}
 
-	if len(values) != 0 {
-		if query.model.SingleValue {
-			fields = append(fields, data.NewField("Value", nil, values[0]))
-		} else {
-			for i, v := range values {
-				fields = append(fields, data.NewField(fmt.Sprintf("Value #%d", i), nil, v))
-			}
+	if query.model.SingleValue && len(values) != 0 {
+		fields = append(fields, data.NewField("Value", nil, values[0]))
+	} else {
+		for i, v := range values {
+			fields = append(fields, data.NewField(fmt.Sprintf("Value #%d", i), nil, v))
 		}
 	}
 
 	res.Frames = data.Frames{
 		&data.Frame{
 			// Name:   "Response",
+			Fields: fields,
+			Meta:   frameMeta,
+			RefID:  query.query.RefID,
+		},
+	}
+
+	return
+}
+
+func processCSV(akipsResponse akips.CSVResponse, query *query, frameMeta *data.FrameMeta) (res backend.DataResponse, err error) {
+	if len(akipsResponse) == 0 {
+		return
+	}
+
+	vlen := 0 // just a percaution
+	for _, line := range akipsResponse {
+		if len(line) > vlen {
+			vlen = len(line)
+		}
+	}
+
+	values := make([][]string, vlen)
+	for i := range values {
+		values[i] = make([]string, len(akipsResponse))
+	}
+
+	for i, line := range akipsResponse {
+		for vi, v := range line {
+			values[vi][i] = v
+		}
+	}
+
+	var fields []*data.Field
+	if query.model.SingleValue && len(values) != 0 {
+		fields = []*data.Field{data.NewField("Value", nil, values[0])}
+	} else {
+		fields = make([]*data.Field, len(values))
+		for i, v := range values {
+			fields[i] = data.NewField(fmt.Sprintf("Value #%d", i), nil, v)
+		}
+	}
+
+	res.Frames = data.Frames{
+		&data.Frame{
 			Fields: fields,
 			Meta:   frameMeta,
 			RefID:  query.query.RefID,
