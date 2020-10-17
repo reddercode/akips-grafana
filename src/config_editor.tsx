@@ -1,63 +1,44 @@
 import React from 'react';
-import { css, cx } from 'emotion';
-import { FormField, Input, SecretFormField } from '@grafana/ui';
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
+import { Field, Input, Legend } from '@grafana/ui';
+import { DataSourceJsonData, DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { AKIPSSecureJSONData } from './types';
+import {} from '@emotion/core'; // https://github.com/grafana/grafana/issues/26512
 
-export class ConfigEditor extends React.PureComponent<DataSourcePluginOptionsEditorProps> {
+export class ConfigEditor extends React.PureComponent<
+  DataSourcePluginOptionsEditorProps<DataSourceJsonData, AKIPSSecureJSONData>
+> {
   render() {
     const { options, onOptionsChange } = this.props;
-    const { secureJsonFields } = options;
-    const secureJsonData = (options.secureJsonData || {}) as AKIPSSecureJSONData;
-    const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(options.url);
-    const defaultUrl = 'http://localhost:9090';
-    const notValidStyle = css`
-      box-shadow: inset 0 0px 5px red;
-    `;
-
-    const inputStyle = cx({ [`width-20`]: true, [notValidStyle]: !isValidUrl });
-
-    const urlInput = (
-      <Input
-        className={inputStyle}
-        placeholder={defaultUrl}
-        value={options.url}
-        onChange={event => onOptionsChange({ ...options, url: event.currentTarget.value })}
-      />
+    const secureJsonData = options.secureJsonData || {};
+    const isValidUrl = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(
+      options.url
     );
 
     return (
-      <div className="gf-form-group">
-        <>
-          <h3 className="page-heading">HTTP</h3>
+      <>
+        <div className="gf-form-group">
+          <Legend>HTTP</Legend>
           <div className="gf-form-group">
-            <div className="gf-form">
-              <FormField label="URL" labelWidth={11} tooltip="Specify a complete HTTP URL (for example http://your_server:8080)" inputEl={urlInput} />
-            </div>
+            <Field
+              required
+              invalid={!isValidUrl}
+              label="URL"
+              description="Specify a complete HTTP URL (for example http://your_server:8080)"
+            >
+              <Input
+                type="text"
+                value={options.url}
+                onChange={(event) => onOptionsChange({ ...options, url: event.currentTarget.value })}
+              />
+            </Field>
           </div>
-        </>
-        <>
-          <h3 className="page-heading">Auth</h3>
+
+          <Legend>Auth</Legend>
           <div className="gf-form-group">
-            <div className="gf-form">
-              <SecretFormField
-                isConfigured={(secureJsonFields && secureJsonFields.password) as boolean}
-                value={secureJsonData.password || ''}
-                inputWidth={18}
-                labelWidth={10}
-                onReset={() =>
-                  onOptionsChange({
-                    ...options,
-                    secureJsonFields: {
-                      ...options.secureJsonFields,
-                      password: false,
-                    },
-                    secureJsonData: {
-                      ...options.secureJsonData,
-                      password: '',
-                    },
-                  })
-                }
+            <Field label="Password" required>
+              <Input
+                type="password"
+                value={secureJsonData.password}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   onOptionsChange({
                     ...options,
@@ -67,10 +48,10 @@ export class ConfigEditor extends React.PureComponent<DataSourcePluginOptionsEdi
                   })
                 }
               />
-            </div>
+            </Field>
           </div>
-        </>
-      </div>
+        </div>
+      </>
     );
   }
 }

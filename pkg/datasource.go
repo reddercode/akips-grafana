@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/reddercode/akips-grafana/pkg/akips"
 )
+
+const minInterval = 60 * time.Second
 
 func newDatasource() *AKIPSDatasource {
 	return &AKIPSDatasource{}
@@ -21,11 +24,20 @@ func newDatasource() *AKIPSDatasource {
 type AKIPSDatasource struct {
 }
 
+type query struct {
+	query *backend.DataQuery
+	model *queryModel
+}
+
 type queryModel struct {
-	Query       string `json:"query"`
-	Format      string `json:"format"`
-	SingleValue bool   `json:"singleValue"`
-	OmitParents bool   `json:"omitParents"`
+	Query        string `json:"query"`
+	Device       string `json:"device"`
+	Child        string `json:"child"`
+	Attribute    string `json:"attribute"`
+	SingleValue  bool   `json:"singleValue"`
+	OmitParents  bool   `json:"omitParents"`
+	LegendFormat string `json:"legendFormat"`
+	LegendRegex  bool   `json:"legendRegex"`
 }
 
 func akipsConfig(pc *backend.PluginContext) *akips.Config {
@@ -57,14 +69,20 @@ const (
 	fmtFrames       = "frames"
 )
 
-func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Config, query *backend.DataQuery) (backend.DataResponse, error) {
-	var q queryModel
-	if err := json.Unmarshal(query.JSON, &q); err != nil {
+func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Config, dq *backend.DataQuery) (backend.DataResponse, error) {
+	var model queryModel
+	if err := json.Unmarshal(dq.JSON, &model); err != nil {
 		return backend.DataResponse{}, err
 	}
+	query := query{
+		query: dq,
+		model: &model,
+	}
+
 	client := clientConfig.Client()
 
-	req, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{"cmds": []string{q.Query}})
+	queryStr := query.interpolateVariables()
+	req, err := clientConfig.NewRequest(ctx, "GET", "/api-db", url.Values{"cmds": []string{queryStr}})
 	if err != nil {
 		return backend.DataResponse{}, err
 	}
@@ -84,23 +102,72 @@ func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Confi
 		return backend.DataResponse{Error: err}, nil
 	}
 
-	switch query.QueryType {
+	meta := data.FrameMeta{ExecutedQueryString: queryStr}
+
+	switch query.query.QueryType {
 	case queryTable:
-		return processTable(akipsResponse, query, &q)
+		return processTable(akipsResponse, &query, &meta)
 	default:
-		return processTimeSeries(akipsResponse, query, &q)
+		return processTimeSeries(akipsResponse, &query, &meta)
 	}
 }
 
 func fieldName(e *akips.GenericResponseEntry) string {
+	var n string
 	switch {
 	case e.Attribute != "":
-		return e.Attribute
+		n = e.Attribute
 	case e.Child != "":
-		return e.Child
+		n = e.Child
 	default:
-		return e.Parent
+		n = e.Parent
 	}
+	return n
+}
+
+func (qm *queryModel) formatLegend(str string) (string, error) {
+	if qm.LegendFormat == "" {
+		return str, nil
+	}
+
+	if qm.LegendRegex {
+		r, err := regexp.Compile(qm.LegendFormat)
+		if err != nil {
+			return "", err
+		}
+		sub := r.FindStringSubmatch(str)
+		if len(sub) == 0 {
+			return str, nil
+		}
+		return sub[len(sub)-1], nil
+	}
+	return qm.LegendFormat, nil
+}
+
+func (q *query) interpolateVariables() string {
+	replace := func(s, name, val string) string {
+		re := regexp.MustCompile(`\$(` + name + `(\W|$)|{` + name + `})`)
+		return re.ReplaceAllString(s, val+"$2")
+	}
+
+	interval := int64(((q.query.Interval + minInterval - 1) / minInterval) * minInterval / time.Second)
+	from := q.query.TimeRange.From.Unix()
+	to := q.query.TimeRange.To.Unix()
+
+	vars := [][2]string{
+		{"__timeInterval", strconv.FormatInt(interval, 10)},
+		{"__timeFrom", strconv.FormatInt(from, 10)},
+		{"__timeTo", strconv.FormatInt(to, 10)},
+		{"__device", q.model.Device},
+		{"__child", q.model.Child},
+		{"__attribute", q.model.Attribute},
+	}
+
+	qstr := q.model.Query
+	for _, v := range vars {
+		qstr = replace(qstr, v[0], v[1])
+	}
+	return qstr
 }
 
 func fieldLabels(e *akips.GenericResponseEntry) (l data.Labels) {
@@ -117,10 +184,10 @@ func fieldLabels(e *akips.GenericResponseEntry) (l data.Labels) {
 	return
 }
 
-func mkTimestampField(query *backend.DataQuery, qm *queryModel, n int) *data.Field {
+func (q *query) mkTimestampField(n int) *data.Field {
 	var ts []time.Time
-	if qm.SingleValue {
-		ts = []time.Time{query.TimeRange.To}
+	if q.model.SingleValue {
+		ts = []time.Time{q.query.TimeRange.To}
 	} else {
 		ts = make([]time.Time, n)
 
@@ -129,25 +196,20 @@ func mkTimestampField(query *backend.DataQuery, qm *queryModel, n int) *data.Fie
 			d = 1
 		}
 
-		dur := query.TimeRange.Duration()
+		dur := q.query.TimeRange.Duration()
 		for i := range ts {
-			ts[i] = query.TimeRange.From.Add(dur * time.Duration(i) / time.Duration(d))
+			ts[i] = q.query.TimeRange.From.Add(dur * time.Duration(i) / time.Duration(d))
 		}
 	}
 	return data.NewField("Timestamp", nil, ts)
 }
 
-func processTimeSeries(akipsResponse akips.GenericResponse, query *backend.DataQuery, qm *queryModel) (res backend.DataResponse, err error) {
+func processTimeSeries(akipsResponse akips.GenericResponse, query *query, frameMeta *data.FrameMeta) (res backend.DataResponse, err error) {
 	if len(akipsResponse) == 0 {
 		return
 	}
 
-	var (
-		tsField    *data.Field
-		dataFields []*data.Field
-	)
-
-	frameMeta := data.FrameMeta{ExecutedQueryString: qm.Query}
+	var tsField *data.Field
 
 	for _, line := range akipsResponse {
 		if len(line.Values) == 0 {
@@ -156,15 +218,15 @@ func processTimeSeries(akipsResponse akips.GenericResponse, query *backend.DataQ
 		}
 
 		if tsField == nil {
-			tsField = mkTimestampField(query, qm, len(line.Values))
+			tsField = query.mkTimestampField(len(line.Values))
 		}
 
 		var datapoints []*int64 // nullable
-		if qm.SingleValue {
+		if query.model.SingleValue {
 			vv, _ := strconv.ParseInt(line.Values[0], 10, 64)
 			datapoints = []*int64{&vv}
 		} else {
-			datapoints := make([]*int64, len(line.Values))
+			datapoints = make([]*int64, len(line.Values))
 			for i, v := range line.Values {
 				if vv, err := strconv.ParseInt(v, 10, 64); err == nil {
 					datapoints[i] = &vv
@@ -172,37 +234,26 @@ func processTimeSeries(akipsResponse akips.GenericResponse, query *backend.DataQ
 			}
 		}
 
-		df := data.NewField(fieldName(line), fieldLabels(line), datapoints)
-
-		if qm.Format != fmtFrames {
-			dataFields = append(dataFields, df)
-		} else {
-			// Frame per line
-			res.Frames = append(res.Frames, &data.Frame{
-				Name:   fieldName(line),
-				Fields: []*data.Field{tsField, df},
-				Meta:   &frameMeta,
-				RefID:  query.RefID,
-			})
+		fn, err := query.model.formatLegend(fieldName(line))
+		if err != nil {
+			return backend.DataResponse{Error: err}, nil
 		}
-	}
 
-	if qm.Format != fmtFrames && tsField != nil {
-		// Single frame
-		res.Frames = data.Frames{
-			&data.Frame{
-				Name:   "Response",
-				Fields: append([]*data.Field{tsField}, dataFields...),
-				Meta:   &frameMeta,
-				RefID:  query.RefID,
-			},
-		}
+		df := data.NewField(fn, fieldLabels(line), datapoints)
+
+		// Frame per line
+		res.Frames = append(res.Frames, &data.Frame{
+			// Name:   fn,
+			Fields: []*data.Field{tsField, df},
+			Meta:   frameMeta,
+			RefID:  query.query.RefID,
+		})
 	}
 
 	return
 }
 
-func processTable(akipsResponse akips.GenericResponse, query *backend.DataQuery, qm *queryModel) (res backend.DataResponse, err error) {
+func processTable(akipsResponse akips.GenericResponse, query *query, frameMeta *data.FrameMeta) (res backend.DataResponse, err error) {
 	if len(akipsResponse) == 0 {
 		return
 	}
@@ -231,24 +282,31 @@ func processTable(akipsResponse akips.GenericResponse, query *backend.DataQuery,
 	}
 
 	for i, line := range akipsResponse {
-		pca.parent[i] = line.Parent
-		pca.child[i] = line.Child
-		pca.attribute[i] = line.Attribute
+		if query.model.OmitParents {
+			pca.attribute[i] = fieldName(line)
+		} else {
+			pca.parent[i] = line.Parent
+			pca.child[i] = line.Child
+			pca.attribute[i] = line.Attribute
+		}
+
 		for vi, v := range line.Values {
 			values[vi][i] = v
 		}
 	}
 
 	fields := make([]*data.Field, 0, len(values)+3)
-	if !qm.OmitParents {
+	if query.model.OmitParents {
+		fields = append(fields, data.NewField("Name", nil, pca.attribute))
+	} else {
 		fields = append(fields,
 			data.NewField("Parent", nil, pca.parent),
-			data.NewField("Child", nil, pca.child))
+			data.NewField("Child", nil, pca.child),
+			data.NewField("Attribute", nil, pca.attribute))
 	}
-	fields = append(fields, data.NewField("Attribute", nil, pca.attribute))
 
 	if len(values) != 0 {
-		if qm.SingleValue {
+		if query.model.SingleValue {
 			fields = append(fields, data.NewField("Value", nil, values[0]))
 		} else {
 			for i, v := range values {
@@ -259,10 +317,10 @@ func processTable(akipsResponse akips.GenericResponse, query *backend.DataQuery,
 
 	res.Frames = data.Frames{
 		&data.Frame{
-			Name:   "Response",
+			// Name:   "Response",
 			Fields: fields,
-			Meta:   &data.FrameMeta{ExecutedQueryString: qm.Query},
-			RefID:  query.RefID,
+			Meta:   frameMeta,
+			RefID:  query.query.RefID,
 		},
 	}
 
@@ -274,7 +332,7 @@ func (a *AKIPSDatasource) CheckHealth(ctx context.Context, req *backend.CheckHea
 	cfg := akipsConfig(&req.PluginContext)
 	client := cfg.Client()
 
-	akipsReq, err := cfg.NewRequest(ctx, "GET", "/api-db", nil)
+	akipsReq, err := cfg.NewRequest(ctx, "GET", "/api-db", url.Values{"cmds": []string{"mget device __dummy__"}})
 	if err != nil {
 		return nil, err
 	}
@@ -289,10 +347,17 @@ func (a *AKIPSDatasource) CheckHealth(ctx context.Context, req *backend.CheckHea
 	defer res.Body.Close()
 
 	if res.StatusCode/100 != 2 {
-		// Pass the message to the front end
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
 			Message: res.Status,
+		}, nil
+	}
+
+	var akipsResponse akips.GenericResponse
+	if err := akipsResponse.ParseResponse(res.Body); err != nil {
+		return &backend.CheckHealthResult{
+			Status:  backend.HealthStatusError,
+			Message: err.Error(),
 		}, nil
 	}
 
