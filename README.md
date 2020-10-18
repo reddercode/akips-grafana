@@ -40,3 +40,17 @@ Expected command output format: `value,...`
 Command examples: `get`
 
 Table columns: `Value #0`, ...
+
+## Variables
+
+Those variables are specific to this particular data source. The syntax is similar to one of Grafana template engine: `$variable` or `${variable}`
+
+| Variable       | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| __timeInterval | Sampling interval in seconds, adjusted to be a multiple of 60 sec, according to AKiPS requirement |
+| __timeFrom     | Time frame start in seconds since the Unix epoch             |
+| __timeTo       | Time frame end in seconds since the Unix epoch               |
+| __device       | The value of the Device selector and the corresponding `device` internal query property |
+| __child        | The value of the Child selector and the corresponding `child` internal query property |
+| __attribute    | The value of the Attribute/Interface selector and the corresponding  `attribute` internal query property |
+
