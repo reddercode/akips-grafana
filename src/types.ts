@@ -8,10 +8,7 @@ export interface Query extends DataQuery {
   device?: string;
   child?: string;
   attribute?: string;
-  singleValue?: boolean;
   omitParents?: boolean;
-  legendFormat?: string;
-  legendRegex?: boolean;
 }
 
 export interface AKIPSSecureJSONData {

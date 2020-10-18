@@ -1,5 +1,5 @@
 import { ExploreQueryFieldProps, SelectableValue } from '@grafana/data';
-import { QueryField, SlatePrism, Select, Switch, Input } from '@grafana/ui';
+import { QueryField, SlatePrism, Select } from '@grafana/ui';
 import React from 'react';
 import Slate from 'slate';
 import Prism from 'prismjs';
@@ -8,9 +8,7 @@ import { Query, QueryType } from './types';
 import syntax from './syntax';
 import {} from '@emotion/core'; // https://github.com/grafana/grafana/issues/26512
 
-interface AKIPSQueryFieldProps extends ExploreQueryFieldProps<DataSource, Query> {
-  extOptions?: boolean;
-}
+type AKIPSQueryFieldProps = ExploreQueryFieldProps<DataSource, Query>;
 
 interface AKIPSQueryFieldState {
   devices?: Array<SelectableValue<string>> | null;
@@ -137,27 +135,6 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     );
   };
 
-  private onChangeSingle = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ singleValue: value }, true);
-    }
-  };
-
-  private onChangeOmitParents = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ omitParents: value }, true);
-    }
-  };
-
-  private onChangeLegendRegex = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ legendRegex: value }, true);
-    }
-  };
-
   private selectedDevice(): SelectableValue<string> | undefined {
     const { query } = this.props;
     return this.state.devices && query.device
@@ -182,29 +159,6 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
   private queryType(): SelectableValue<QueryType> {
     const { query } = this.props;
     return QUERY_TYPES.find((option) => option.value === query.queryType) || QUERY_TYPES[0];
-  }
-
-  private extOptions(): JSX.Element | null {
-    const { query } = this.props;
-    return (
-      <>
-        <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
-        {query.queryType && query.queryType === 'table' ? (
-          <Switch label="Omit parents" checked={query.omitParents || false} onChange={this.onChangeOmitParents} />
-        ) : null}
-        {!query.queryType || query.queryType === 'time_series' ? (
-          <>
-            <label className="gf-form-label">Legend</label>
-            <Input
-              value={query.legendFormat}
-              onChange={(event) => this.changeQuery({ legendFormat: event.currentTarget.value }, true)}
-              placeholder={query.legendRegex ? 'Enter a regex' : ''}
-            />
-            <Switch label="Regex" checked={query.legendRegex || false} onChange={this.onChangeLegendRegex} />
-          </>
-        ) : null}
-      </>
-    );
   }
 
   render() {
@@ -267,7 +221,6 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
               onChange={(option) => this.changeQuery({ queryType: option.value }, true)}
               value={this.queryType()}
             />
-            {this.props.extOptions ? this.extOptions() : null}
           </div>
         </div>
       </>

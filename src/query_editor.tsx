@@ -16,7 +16,6 @@ export class AKIPSQueryEditor extends React.PureComponent<AKIPSQueryEditorProps>
         onRunQuery={this.props.onRunQuery}
         data={this.props.data}
         history={[]}
-        extOptions
       />
     );
   }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/grafana/grafana-plugin-sdk-go/data/converters"
 	"github.com/reddercode/akips-grafana/pkg/akips"
 )
 
@@ -30,14 +31,11 @@ type query struct {
 }
 
 type queryModel struct {
-	Query        string `json:"query"`
-	Device       string `json:"device"`
-	Child        string `json:"child"`
-	Attribute    string `json:"attribute"`
-	SingleValue  bool   `json:"singleValue"`
-	OmitParents  bool   `json:"omitParents"`
-	LegendFormat string `json:"legendFormat"`
-	LegendRegex  bool   `json:"legendRegex"`
+	Query       string `json:"query"`
+	Device      string `json:"device"`
+	Child       string `json:"child"`
+	Attribute   string `json:"attribute"`
+	OmitParents bool   `json:"omitParents"`
 }
 
 func akipsConfig(pc *backend.PluginContext) *akips.Config {
@@ -118,7 +116,6 @@ func (a *AKIPSDatasource) doQuery(ctx context.Context, clientConfig *akips.Confi
 	default:
 		return processTimeSeries(akipsResponse, &query, &meta)
 	}
-
 }
 
 func fieldName(e *akips.GenericResponseEntry) string {
@@ -132,25 +129,6 @@ func fieldName(e *akips.GenericResponseEntry) string {
 		n = e.Parent
 	}
 	return n
-}
-
-func (qm *queryModel) formatLegend(str string) (string, error) {
-	if qm.LegendFormat == "" {
-		return str, nil
-	}
-
-	if qm.LegendRegex {
-		r, err := regexp.Compile(qm.LegendFormat)
-		if err != nil {
-			return "", err
-		}
-		sub := r.FindStringSubmatch(str)
-		if len(sub) == 0 {
-			return str, nil
-		}
-		return sub[len(sub)-1], nil
-	}
-	return qm.LegendFormat, nil
 }
 
 func (q *query) interpolateVariables() string {
@@ -194,21 +172,16 @@ func fieldLabels(e *akips.GenericResponseEntry) (l data.Labels) {
 }
 
 func (q *query) mkTimestampField(n int) *data.Field {
-	var ts []time.Time
-	if q.model.SingleValue {
-		ts = []time.Time{q.query.TimeRange.To}
-	} else {
-		ts = make([]time.Time, n)
+	ts := make([]time.Time, n)
 
-		d := n - 1
-		if d == 0 {
-			d = 1
-		}
+	d := n - 1
+	if d == 0 {
+		d = 1
+	}
 
-		dur := q.query.TimeRange.Duration()
-		for i := range ts {
-			ts[i] = q.query.TimeRange.From.Add(dur * time.Duration(i) / time.Duration(d))
-		}
+	dur := q.query.TimeRange.Duration()
+	for i := range ts {
+		ts[i] = q.query.TimeRange.From.Add(dur * time.Duration(i) / time.Duration(d))
 	}
 	return data.NewField("Timestamp", nil, ts)
 }
@@ -231,23 +204,14 @@ func processTimeSeries(akipsResponse akips.GenericResponse, query *query, frameM
 		}
 
 		var datapoints []*int64 // nullable
-		if query.model.SingleValue {
-			vv, _ := strconv.ParseInt(line.Values[0], 10, 64)
-			datapoints = []*int64{&vv}
-		} else {
-			datapoints = make([]*int64, len(line.Values))
-			for i, v := range line.Values {
-				if vv, err := strconv.ParseInt(v, 10, 64); err == nil {
-					datapoints[i] = &vv
-				}
+		datapoints = make([]*int64, len(line.Values))
+		for i, v := range line.Values {
+			if vv, err := strconv.ParseInt(v, 10, 64); err == nil {
+				datapoints[i] = &vv
 			}
 		}
 
-		fn, err := query.model.formatLegend(fieldName(line))
-		if err != nil {
-			return backend.DataResponse{Error: err}, nil
-		}
-
+		fn := fieldName(line)
 		df := data.NewField(fn, fieldLabels(line), datapoints)
 
 		// Frame per line
@@ -267,69 +231,77 @@ func processTable(akipsResponse akips.GenericResponse, query *query, frameMeta *
 		return
 	}
 
-	// transpose the result
-	pca := struct {
-		parent    []string
-		child     []string
-		attribute []string
-	}{
-		parent:    make([]string, len(akipsResponse)),
-		child:     make([]string, len(akipsResponse)),
-		attribute: make([]string, len(akipsResponse)),
-	}
-
-	vlen := 0 // just a percaution
+	vlen := 0
 	for _, line := range akipsResponse {
 		if len(line.Values) > vlen {
 			vlen = len(line.Values)
 		}
 	}
 
-	values := make([][]string, vlen)
-	for i := range values {
-		values[i] = make([]string, len(akipsResponse))
+	cvt := make([]data.FieldConverter, 0, vlen+3)
+	cvt = append(cvt, data.FieldConverter{OutputFieldType: data.FieldTypeString})
+	if !query.model.OmitParents {
+		cvt = append(cvt,
+			data.FieldConverter{OutputFieldType: data.FieldTypeString},
+			data.FieldConverter{OutputFieldType: data.FieldTypeString},
+		)
 	}
 
+	// guess fields' formats
+	for i := 0; i < vlen; i++ {
+		c := converters.AnyToNullableString
+		if i < len(akipsResponse[0].Values) {
+			if _, err := strconv.ParseInt(akipsResponse[0].Values[i], 10, 64); err == nil {
+				c = converters.StringToNullableFloat64
+			}
+		}
+		cvt = append(cvt, c)
+	}
+
+	builder, err := data.NewFrameInputConverter(cvt, len(akipsResponse))
+	if err != nil {
+		return backend.DataResponse{Error: err}, nil
+	}
+
+	names := make([]string, 0, vlen+3)
+	if !query.model.OmitParents {
+		names = append(names, "Parent", "Child", "Attribute")
+	} else {
+		names = append(names, "Name")
+	}
+	for i := 0; i < vlen; i++ {
+		names = append(names, fmt.Sprintf("Value #%d", i))
+	}
+
+	if err := builder.Frame.SetFieldNames(names...); err != nil {
+		return backend.DataResponse{Error: err}, nil
+	}
+
+	// fill the frame
 	for i, line := range akipsResponse {
-		if query.model.OmitParents {
-			pca.attribute[i] = fieldName(line)
+		var offset int
+		if !query.model.OmitParents {
+			builder.Set(0, i, line.Parent)
+			builder.Set(1, i, line.Child)
+			builder.Set(2, i, line.Attribute)
+			offset = 3
 		} else {
-			pca.parent[i] = line.Parent
-			pca.child[i] = line.Child
-			pca.attribute[i] = line.Attribute
+			builder.Set(0, i, fieldName(line))
+			offset = 1
 		}
 
-		for vi, v := range line.Values {
-			values[vi][i] = v
-		}
-	}
-
-	fields := make([]*data.Field, 0, len(values)+3)
-	if query.model.OmitParents {
-		fields = append(fields, data.NewField("Name", nil, pca.attribute))
-	} else {
-		fields = append(fields,
-			data.NewField("Parent", nil, pca.parent),
-			data.NewField("Child", nil, pca.child),
-			data.NewField("Attribute", nil, pca.attribute))
-	}
-
-	if query.model.SingleValue && len(values) != 0 {
-		fields = append(fields, data.NewField("Value", nil, values[0]))
-	} else {
-		for i, v := range values {
-			fields = append(fields, data.NewField(fmt.Sprintf("Value #%d", i), nil, v))
+		for fi, v := range line.Values {
+			var val interface{}
+			if v != "" {
+				val = v
+			}
+			builder.Set(fi+offset, i, val)
 		}
 	}
 
-	res.Frames = data.Frames{
-		&data.Frame{
-			// Name:   "Response",
-			Fields: fields,
-			Meta:   frameMeta,
-			RefID:  query.query.RefID,
-		},
-	}
+	builder.Frame.RefID = query.query.RefID
+	builder.Frame.Meta = frameMeta
+	res.Frames = data.Frames{builder.Frame}
 
 	return
 }
@@ -339,41 +311,53 @@ func processCSV(akipsResponse akips.CSVResponse, query *query, frameMeta *data.F
 		return
 	}
 
-	vlen := 0 // just a percaution
+	vlen := 0
 	for _, line := range akipsResponse {
 		if len(line) > vlen {
 			vlen = len(line)
 		}
 	}
 
-	values := make([][]string, vlen)
-	for i := range values {
-		values[i] = make([]string, len(akipsResponse))
+	cvt := make([]data.FieldConverter, vlen)
+
+	// guess fields' formats
+	for i := range cvt {
+		c := converters.AnyToNullableString
+		if i < len(akipsResponse[0]) {
+			if _, err := strconv.ParseInt(akipsResponse[0][i], 10, 64); err == nil {
+				c = converters.StringToNullableFloat64
+			}
+		}
+		cvt[i] = c
 	}
 
+	builder, err := data.NewFrameInputConverter(cvt, len(akipsResponse))
+	if err != nil {
+		return backend.DataResponse{Error: err}, nil
+	}
+
+	names := make([]string, vlen)
+	for i := range names {
+		names[i] = fmt.Sprintf("Value #%d", i)
+	}
+	if err := builder.Frame.SetFieldNames(names...); err != nil {
+		return backend.DataResponse{Error: err}, nil
+	}
+
+	// fill the frame
 	for i, line := range akipsResponse {
-		for vi, v := range line {
-			values[vi][i] = v
+		for fi, v := range line {
+			var val interface{}
+			if v != "" {
+				val = v
+			}
+			builder.Set(fi, i, val)
 		}
 	}
 
-	var fields []*data.Field
-	if query.model.SingleValue && len(values) != 0 {
-		fields = []*data.Field{data.NewField("Value", nil, values[0])}
-	} else {
-		fields = make([]*data.Field, len(values))
-		for i, v := range values {
-			fields[i] = data.NewField(fmt.Sprintf("Value #%d", i), nil, v)
-		}
-	}
-
-	res.Frames = data.Frames{
-		&data.Frame{
-			Fields: fields,
-			Meta:   frameMeta,
-			RefID:  query.query.RefID,
-		},
-	}
+	builder.Frame.RefID = query.query.RefID
+	builder.Frame.Meta = frameMeta
+	res.Frames = data.Frames{builder.Frame}
 
 	return
 }
@@ -404,7 +388,7 @@ func (a *AKIPSDatasource) CheckHealth(ctx context.Context, req *backend.CheckHea
 		}, nil
 	}
 
-	var akipsResponse akips.GenericResponse
+	var akipsResponse akips.TestResponse
 	if err := akipsResponse.ParseResponse(res.Body); err != nil {
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
