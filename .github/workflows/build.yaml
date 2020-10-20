@@ -23,8 +23,11 @@ jobs:
         run: npx grafana-toolkit plugin:ci-build --finish
       - env:
           GRABPL_VERSION: v0.5.16
-        run: wget -O /usr/local/bin/grabpl "https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/${GRABPL_VERSION}/grabpl"
-      - run: chmod +x /usr/local/bin/grabpl
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/bin
+          wget -O ${GITHUB_WORKSPACE}/bin/grabpl "https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/${GRABPL_VERSION}/grabpl"
+          chmod +x /usr/local/bin/grabpl
+          echo "::add-path::${GITHUB_WORKSPACE}/bin"
       - name: Bundle the plugin
         env:
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
@@ -49,7 +52,7 @@ jobs:
           echo "::set-output name=path::${P}"
           echo "::set-output name=name::$(basename $P)"
       - id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -57,7 +60,7 @@ jobs:
           release_name: akips-grafana ${{ github.ref }}
           draft: ${{ contains(github.ref, 'test') }}
           prerelease: ${{ contains(github.ref, 'pre') }}
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -65,7 +68,7 @@ jobs:
           asset_path: ${{ steps.package_name.outputs.path }}
           asset_name: ${{ steps.package_name.outputs.name }}
           asset_content_type: application/zip
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -73,7 +76,7 @@ jobs:
           asset_path: ${{ steps.package_name.outputs.path }}.sha1
           asset_name: ${{ steps.package_name.outputs.name }}.sha1
           asset_content_type: text/plain
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
