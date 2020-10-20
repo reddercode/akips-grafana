@@ -6,19 +6,30 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v1
-        with: { go-version: "1.13" }
-      - uses: actions/setup-node@v1
-        with: { node-version: "13.x" }
+      - uses: actions/setup-go@v2
+        with: { go-version: "^1.15.2" }
+      - uses: actions/setup-node@v2
+        with: { node-version: "14.x" }
       - uses: actions/checkout@v2
       - run: npm ci
+      - name: Build plugin backend
+        uses: magefile/mage-action@v1
+        with:
+          version: latest
+          args: -v buildAll
       - name: Build plugin frontend
         run: npx grafana-toolkit plugin:ci-build
-      - name: Build plugin backend
-        run: make backend-plugin-ci
-      - name: Bundle plugin
+      - name: Move plugin to the CI directory
+        run: npx grafana-toolkit plugin:ci-build --finish
+      - env:
+          GRABPL_VERSION: v0.5.16
+        run: wget -O /usr/local/bin/grabpl "https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/${GRABPL_VERSION}/grabpl"
+      - run: chmod +x /usr/local/bin/grabpl
+      - name: Bundle the plugin
+        env:
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
         run: npx grafana-toolkit plugin:ci-package
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         if: success()
         with:
           name: package
@@ -30,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v2
         with: { name: package }
       - id: package_name
         run: |
