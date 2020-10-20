@@ -18,26 +18,18 @@ jobs:
           version: latest
           args: -v buildAll
       - name: Build plugin frontend
-        run: npx grafana-toolkit plugin:ci-build
-      - name: Move plugin to the CI directory
-        run: npx grafana-toolkit plugin:ci-build --finish
-      - name: Install Grafana build pipeline
-        env:
-          GRABPL_VERSION: v0.5.16
+        run: npx grafana-toolkit plugin:build
+      - name: Package plugin
         run: |
-          mkdir -p ${GITHUB_WORKSPACE}/bin
-          wget -O ${GITHUB_WORKSPACE}/bin/grabpl "https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/${GRABPL_VERSION}/grabpl"
-          chmod +x ${GITHUB_WORKSPACE}/bin/grabpl
-          echo "::add-path::${GITHUB_WORKSPACE}/bin"
-      - name: Bundle the plugin
-        env:
-          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
-        run: npx grafana-toolkit plugin:ci-package
+          PLUGIN_ID="$(cat ./dist/plugin.json|jq '.id'| sed s/\"//g)"
+          PLUGIN_VERSION="$(cat ./dist/plugin.json|jq '.info.version'| sed s/\"//g)"
+          mkdir packages
+          cd dist && zip -r ../packages/"${PLUGIN_ID}-${PLUGIN_VERSION}.zip" .
       - uses: actions/upload-artifact@v2
         if: success()
         with:
           name: package
-          path: ./ci/packages
+          path: ./packages
 
   release:
     name: Release
