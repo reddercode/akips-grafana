@@ -21,12 +21,13 @@ jobs:
         run: npx grafana-toolkit plugin:ci-build
       - name: Move plugin to the CI directory
         run: npx grafana-toolkit plugin:ci-build --finish
-      - env:
+      - name: Install Grafana build pipeline
+        env:
           GRABPL_VERSION: v0.5.16
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/bin
           wget -O ${GITHUB_WORKSPACE}/bin/grabpl "https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/${GRABPL_VERSION}/grabpl"
-          chmod +x /usr/local/bin/grabpl
+          chmod +x ${GITHUB_WORKSPACE}/bin/grabpl
           echo "::add-path::${GITHUB_WORKSPACE}/bin"
       - name: Bundle the plugin
         env:
