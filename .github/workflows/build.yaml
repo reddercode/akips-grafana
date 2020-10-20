@@ -41,7 +41,7 @@ jobs:
         with: { name: package }
       - id: package_name
         run: |
-          P="$(ls ./package/*.zip)"
+          P="$(ls *.zip)"
           echo "::set-output name=path::${P}"
           echo "::set-output name=name::$(basename $P)"
       - id: create_release
