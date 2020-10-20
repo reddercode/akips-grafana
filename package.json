@@ -1,6 +1,6 @@
 {
 	"name": "akips-datasource",
-	"version": "1.0.0-beta.1",
+	"version": "1.0.0-beta.2",
 	"description": "AKiPS Data Source",
 	"scripts": {
 		"build": "grafana-toolkit plugin:build",
@@ -11,11 +11,18 @@
 	"author": "ECAD Labs",
 	"license": "Apache-2.0",
 	"devDependencies": {
-		"@grafana/data": "^6.6.1",
-		"@grafana/toolkit": "^6.6.1",
-		"@grafana/ui": "^6.6.1",
-		"@types/lodash": "latest",
-		"@types/prismjs": "^1.16.0",
-		"typescript": "^3.7.5"
+		"@grafana/data": "^7.2.0",
+		"@grafana/runtime": "^7.2.0",
+		"@grafana/toolkit": "^7.2.0",
+		"@grafana/ui": "^7.2.0",
+		"@types/lodash": "^4.14.161",
+		"@types/prismjs": "^1.16.1",
+		"@typescript-eslint/eslint-plugin": "^4.4.1",
+		"@typescript-eslint/parser": "^4.4.1",
+		"eslint": "^7.11.0",
+		"eslint-plugin-react": "^7.21.4",
+		"prettier": "^2.1.2",
+		"slate-react": "^0.59.0",
+		"typescript": "^3.9.7"
 	}
 }

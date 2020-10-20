@@ -1,57 +1,51 @@
 import { ExploreQueryFieldProps, SelectableValue } from '@grafana/data';
-import { QueryField, SlatePrism, Select, Switch, Input } from '@grafana/ui';
+import { QueryField, SlatePrism, Select } from '@grafana/ui';
 import React from 'react';
 import Slate from 'slate';
 import Prism from 'prismjs';
 import { DataSource } from './datasource';
-import { Query, QueryType, QueryOptions } from './types';
+import { Query, QueryType } from './types';
 import syntax from './syntax';
+import {} from '@emotion/core'; // https://github.com/grafana/grafana/issues/26512
 
-interface AKIPSQueryFieldProps extends ExploreQueryFieldProps<DataSource, Query> {
-  extOptions?: boolean;
-}
+type AKIPSQueryFieldProps = ExploreQueryFieldProps<DataSource, Query>;
 
 interface AKIPSQueryFieldState {
-  syntaxLoaded: boolean;
   devices?: Array<SelectableValue<string>> | null;
-  selectedDevice?: SelectableValue<string> | null;
   children?: Array<SelectableValue<string>> | null;
-  selectedChild?: SelectableValue<string> | null;
   attributes?: Array<SelectableValue<string>> | null;
-  selectedAttribute?: SelectableValue<string> | null;
-  queryType: SelectableValue<QueryType>;
 }
 
 const QUERY_TYPES: Array<SelectableValue<QueryType>> = [
-  { label: 'Time series', value: 'timeSeriesQuery' },
-  { label: 'Table', value: 'tableQuery' },
+  { label: 'Time series', value: 'time_series' },
+  { label: 'Table', value: 'table' },
+  { label: 'CSV', value: 'csv' },
 ];
 
 export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, AKIPSQueryFieldState> {
   plugins: Slate.Plugin[];
 
-  constructor(props: AKIPSQueryFieldProps, context: React.Context<any>) {
-    super(props, context);
-    const { query } = props;
+  constructor(props: AKIPSQueryFieldProps) {
+    super(props);
 
     this.plugins = [
       SlatePrism({
         onlyIn: (node: Slate.Node) => node instanceof Slate.Block && node.type === 'code_block',
-        getSyntax: (node: Slate.Node) => 'akips',
+        getSyntax: () => 'akips',
       }),
     ];
 
-    this.state = {
-      syntaxLoaded: false,
-      queryType: QUERY_TYPES.find(option => option.value === query.type) || QUERY_TYPES[0],
-    };
+    Prism.languages.akips = syntax;
+    this.state = {};
   }
 
   componentDidMount() {
-    const { query } = this.props;
+    const { query, onChange } = this.props;
 
-    Prism.languages['akips'] = syntax;
-    this.setState({ syntaxLoaded: true });
+    if (!query.query && onChange) {
+      const q: Query = { ...query, query: DataSource.DEFAULT_QUERY };
+      onChange(q);
+    }
 
     this.updateDevices();
     if (query.device) {
@@ -62,38 +56,9 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     }
   }
 
-  componentDidUpdate(prevProps: AKIPSQueryFieldProps) {
-    const { query } = this.props;
-    const { query: prev } = prevProps;
-
-    if (query.type !== prev.type) {
-      this.setState({
-        queryType: QUERY_TYPES.find(option => option.value === query.type) || QUERY_TYPES[0],
-      });
-    }
-
-    if (query.device !== prev.device) {
-      this.setState({
-        selectedDevice: this.state.devices?.find(option => option.value === query.device) || null,
-      });
-    }
-
-    if (query.child !== prev.child) {
-      this.setState({
-        selectedChild: this.state.children?.find(option => option.value === query.child) || null,
-      });
-    }
-
-    if (query.attribute !== prev.attribute) {
-      this.setState({
-        selectedAttribute: this.state.attributes?.find(option => option.value === query.attribute) || null,
-      });
-    }
-  }
-
-  async updateDevices() {
-    const { datasource, query } = this.props;
-    const result = (await datasource.metricFindQuery('mlist device *')).map<SelectableValue<string>>(value => ({
+  private async updateDevices() {
+    const { datasource } = this.props;
+    const result = (await datasource.metricFindQuery('mlist device *')).map<SelectableValue<string>>((value) => ({
       label: value.text,
       value: value.text,
     }));
@@ -101,17 +66,11 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     this.setState({
       devices: result,
     });
-
-    if (query.device) {
-      this.setState({
-        selectedDevice: result.find(option => option.value === query.device) || null,
-      });
-    }
   }
 
-  async updateChildren(dev: string) {
-    const { datasource, query } = this.props;
-    const result = (await datasource.metricFindQuery(`mlist * "${dev}" *`)).map<SelectableValue<string>>(value => ({
+  private async updateChildren(dev: string) {
+    const { datasource } = this.props;
+    const result = (await datasource.metricFindQuery(`mlist * "${dev}" *`)).map<SelectableValue<string>>((value) => ({
       label: value.text,
       value: value.text,
     }));
@@ -119,170 +78,122 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
     this.setState({
       children: result,
     });
-
-    if (query.child) {
-      this.setState({
-        selectedChild: result.find(option => option.value === query.child) || null,
-      });
-    }
   }
 
-  async updateAttributes(dev: string, child: string) {
-    const { datasource, query } = this.props;
-    const result = (await datasource.metricFindQuery(`mlist * "${dev}" "${child}" *`)).map<SelectableValue<string>>(value => ({
-      label: value.text,
-      value: value.text,
-    }));
+  private async updateAttributes(dev: string, child: string) {
+    const { datasource } = this.props;
+    const result = (await datasource.metricFindQuery(`mlist * "${dev}" "${child}" *`)).map<SelectableValue<string>>(
+      (value) => ({
+        label: value.text,
+        value: value.text,
+      })
+    );
 
     this.setState({
       attributes: result,
     });
-
-    if (query.attribute) {
-      this.setState({
-        selectedAttribute: result.find(option => option.value === query.attribute) || null,
-      });
-    }
   }
 
-  changeQuery(values: QueryOptions, override?: boolean) {
+  private changeQuery(values: Partial<Query>, override?: boolean) {
     const { query, onChange, onRunQuery } = this.props;
+    const q: Query = { ...query, ...values };
     if (onChange) {
-      const q: Query = { ...query, ...values };
       onChange(q);
-      if (override && onRunQuery) {
-        onRunQuery();
-      }
+    }
+    if (override && onRunQuery && DataSource.shouldUpdate(q)) {
+      onRunQuery();
     }
   }
 
-  onChangeDevice = (option: SelectableValue<string> | null) => {
+  private onChangeDevice = (option: SelectableValue<string> | null) => {
     this.setState(
       {
-        selectedDevice: option,
         children: null,
-        selectedChild: null,
         attributes: null,
-        selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ device: option?.value, child: undefined, attribute: undefined });
-        if (option?.value) {
+        this.changeQuery({ device: option ? option.value : undefined, child: undefined, attribute: undefined });
+        if (option && option.value) {
           this.updateChildren(option.value);
         }
       }
     );
   };
 
-  onChangeChild = (option: SelectableValue<string> | null) => {
+  private onChangeChild = (option: SelectableValue<string> | null) => {
+    const { query } = this.props;
     this.setState(
       {
-        selectedChild: option,
         attributes: null,
-        selectedAttribute: null,
       },
       () => {
-        this.changeQuery({ child: option?.value, attribute: undefined }, true);
-        if (option?.value && this.state.selectedDevice?.value) {
-          this.updateAttributes(this.state.selectedDevice.value, option.value);
+        this.changeQuery({ child: option ? option.value : undefined, attribute: undefined }, true);
+        if (option && option.value && query.device) {
+          this.updateAttributes(query.device, option.value);
         }
       }
     );
   };
 
-  onChangeAttribute = (option: SelectableValue<string> | null) => {
-    this.setState(
-      {
-        selectedAttribute: option,
-      },
-      () => this.changeQuery({ attribute: option?.value }, true)
-    );
-  };
-
-  onChangeType = (option: SelectableValue<QueryType>) => {
-    this.setState({ queryType: option }, () => this.changeQuery({ type: option.value }, true));
-  };
-
-  onChangeSingle = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ singleValue: value }, true);
-    }
-  };
-
-  onChangeOmitParents = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ omitParents: value }, true);
-    }
-  };
-
-  onChangeLegendRegex = (evt?: React.SyntheticEvent<HTMLInputElement>) => {
-    if (evt) {
-      const value = evt.currentTarget.checked;
-      this.changeQuery({ legendRegex: value }, true);
-    }
-  };
-
-  extOptions(): JSX.Element | null {
-    if (!this.props.extOptions) {
-      return null;
-    }
+  private selectedDevice(): SelectableValue<string> | undefined {
     const { query } = this.props;
-    return (
-      <>
-        <Switch label="Single value" checked={query.singleValue || false} onChange={this.onChangeSingle} />
-        {this.state.queryType?.value === 'tableQuery' ? (
-          <Switch label="Omit parents" checked={query.omitParents || false} onChange={this.onChangeOmitParents} />
-        ) : (
-          <>
-            <label className="gf-form-label">Legend</label>
-            <Input
-              value={query.legendFormat}
-              onChange={event => this.changeQuery({ legendFormat: event.currentTarget.value }, true)}
-              placeholder={query.legendRegex ? 'Enter a regex' : ''}
-            />
-            <Switch label="Regex" checked={query.legendRegex || false} onChange={this.onChangeLegendRegex} />
-          </>
-        )}
-      </>
-    );
+    return this.state.devices && query.device
+      ? this.state.devices.find((option) => option.value === query.device)
+      : undefined;
+  }
+
+  private selectedChild(): SelectableValue<string> | undefined {
+    const { query } = this.props;
+    return this.state.children && query.child
+      ? this.state.children.find((option) => option.value === query.child)
+      : undefined;
+  }
+
+  private selectedAttribute(): SelectableValue<string> | undefined {
+    const { query } = this.props;
+    return this.state.attributes && query.attribute
+      ? this.state.attributes.find((option) => option.value === query.attribute)
+      : undefined;
+  }
+
+  private queryType(): SelectableValue<QueryType> {
+    const { query } = this.props;
+    return QUERY_TYPES.find((option) => option.value === query.queryType) || QUERY_TYPES[0];
   }
 
   render() {
     const { query } = this.props;
-    const rawQuery = query.rawQuery || DataSource.DEFAULT_QUERY;
     return (
       <>
         <div className="gf-form-inline">
-          <div className="gf-form">
+          <div className="gf-form gf-form--grow">
             <label className="gf-form-label">Device</label>
             <Select
-              options={this.state.devices || []}
+              key={`_device_key_${query.device}`} // https://stackoverflow.com/questions/50412843/how-to-programmatically-clear-reset-react-select
+              options={this.state.devices || undefined}
               onChange={this.onChangeDevice}
-              value={this.state.selectedDevice as SelectableValue<string>}
+              value={this.selectedDevice()}
               placeholder="Select device"
-              isClearable
             />
           </div>
-          <div className="gf-form">
+          <div className="gf-form gf-form--grow">
             <label className="gf-form-label">Child</label>
             <Select
-              options={this.state.children || []}
+              key={`_child_key_${query.child}`}
+              options={this.state.children || undefined}
               onChange={this.onChangeChild}
-              value={this.state.selectedChild as SelectableValue<string>}
+              value={this.selectedChild()}
               placeholder="Select a child (interface)"
-              isClearable
             />
           </div>
-          <div className="gf-form">
+          <div className="gf-form gf-form--grow">
             <label className="gf-form-label">Attribute</label>
             <Select
-              options={this.state.attributes || []}
-              onChange={this.onChangeAttribute}
-              value={this.state.selectedAttribute as SelectableValue<string>}
+              key={`_attribute_key_${query.attribute}`}
+              options={this.state.attributes || undefined}
+              onChange={(option) => this.changeQuery({ attribute: option ? option.value : undefined }, true)}
+              value={this.selectedAttribute()}
               placeholder="Select an attribute"
-              isClearable
             />
           </div>
         </div>
@@ -290,22 +201,26 @@ export class AKIPSQueryField extends React.PureComponent<AKIPSQueryFieldProps, A
           <div className="gf-form gf-form--grow flex-shrink-1">
             <label className="gf-form-label">Query</label>
             <QueryField
-              query={rawQuery}
+              query={query.query}
               additionalPlugins={this.plugins}
-              onChange={value => this.changeQuery({ rawQuery: value })}
+              onChange={(value) => this.changeQuery({ query: value })}
               onRunQuery={this.props.onRunQuery}
               onBlur={this.props.onBlur}
               placeholder="Enter an AKiPS query"
               portalOrigin="akips"
-              syntaxLoaded={this.state.syntaxLoaded}
+              syntaxLoaded
             />
           </div>
         </div>
         <div className="gf-form-inline">
           <div className="gf-form">
             <label className="gf-form-label">Format</label>
-            <Select isSearchable={false} options={QUERY_TYPES} onChange={this.onChangeType} value={this.state.queryType} />
-            {this.extOptions()}
+            <Select<QueryType>
+              isSearchable={false}
+              options={QUERY_TYPES}
+              onChange={(option) => this.changeQuery({ queryType: option.value }, true)}
+              value={this.queryType()}
+            />
           </div>
         </div>
       </>

@@ -29,7 +29,7 @@ const syntax: Grammar = {
   },
   variable: varValue,
   builtin: {
-    pattern: /(^|\s)(mget|calc|mcalc|series|cseries|top)(?=$|\s)/,
+    pattern: /(^|\s)(get|mget|calc|mcalc|series|cseries|top)(?=$|\s)/,
     lookbehind: true,
   },
   'attr-name': {

@@ -7,10 +7,6 @@ import { AKIPSQueryField } from './query_field';
 type AKIPSQueryEditorProps = QueryEditorProps<DataSource, Query>;
 
 export class AKIPSQueryEditor extends React.PureComponent<AKIPSQueryEditorProps> {
-  constructor(props: AKIPSQueryEditorProps, context: React.Context<any>) {
-    super(props, context);
-  }
-
   render() {
     return (
       <AKIPSQueryField
@@ -20,7 +16,6 @@ export class AKIPSQueryEditor extends React.PureComponent<AKIPSQueryEditorProps>
         onRunQuery={this.props.onRunQuery}
         data={this.props.data}
         history={[]}
-        extOptions
       />
     );
   }

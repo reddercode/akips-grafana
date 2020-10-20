@@ -6,23 +6,30 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v1
-        with: { go-version: "1.13" }
+      - uses: actions/setup-go@v2
+        with: { go-version: "^1.15.2" }
       - uses: actions/setup-node@v1
-        with: { node-version: "13.x" }
+        with: { node-version: "14.x" }
       - uses: actions/checkout@v2
       - run: npm ci
-      - name: Build plugin frontend
-        run: npx grafana-toolkit plugin:ci-build
       - name: Build plugin backend
-        run: make backend-plugin-ci
-      - name: Bundle plugin
-        run: npx grafana-toolkit plugin:ci-package
-      - uses: actions/upload-artifact@v1
+        uses: magefile/mage-action@v1
+        with:
+          version: latest
+          args: -v buildAll
+      - name: Build plugin frontend
+        run: npx grafana-toolkit plugin:build
+      - name: Package plugin
+        run: |
+          PLUGIN_ID="$(cat ./dist/plugin.json|jq '.id'| sed s/\"//g)"
+          PLUGIN_VERSION="$(cat ./dist/plugin.json|jq '.info.version'| sed s/\"//g)"
+          mkdir packages
+          cd dist && zip -r ../packages/"${PLUGIN_ID}-${PLUGIN_VERSION}.zip" .
+      - uses: actions/upload-artifact@v2
         if: success()
         with:
           name: package
-          path: ./ci/packages
+          path: ./packages
 
   release:
     name: Release
@@ -30,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v2
         with: { name: package }
       - id: package_name
         run: |
@@ -38,7 +45,7 @@ jobs:
           echo "::set-output name=path::${P}"
           echo "::set-output name=name::$(basename $P)"
       - id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -46,7 +53,7 @@ jobs:
           release_name: akips-grafana ${{ github.ref }}
           draft: ${{ contains(github.ref, 'test') }}
           prerelease: ${{ contains(github.ref, 'pre') }}
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -54,7 +61,7 @@ jobs:
           asset_path: ${{ steps.package_name.outputs.path }}
           asset_name: ${{ steps.package_name.outputs.name }}
           asset_content_type: application/zip
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -62,7 +69,7 @@ jobs:
           asset_path: ${{ steps.package_name.outputs.path }}.sha1
           asset_name: ${{ steps.package_name.outputs.name }}.sha1
           asset_content_type: text/plain
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
