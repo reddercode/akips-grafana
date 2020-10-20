@@ -11,7 +11,8 @@ To run using docker:
 docker run --it \
       -p 3000:3000 \
       --name=grafana \
-      -e "GF_INSTALL_PLUGINS=https://github.com/reddercode/akips-grafana/releases/download/v1.0.0-test.2/akips-datasource-1.0.0-test.2.zip;akips-datasource" \
+      -e "GF_INSTALL_PLUGINS=https://github.com/reddercode/akips-grafana/releases/download/v2.0.0-beta.0/akips-datasource-v2.0.0-beta.0.zip;akips-datasource" \
+      -e "GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=akips-datasource" \
       grafana/grafana:latest
 ```
 
