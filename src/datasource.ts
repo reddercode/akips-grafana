@@ -38,7 +38,7 @@ export class DataSource extends DataSourceWithBackend<Query> {
       {
         refId: 'table',
         queryType: 'table',
-        query: request,
+        query: this.templateSrv.replace(request, {}),
         omitParents: true,
       },
     ];
@@ -63,9 +63,6 @@ export class DataSource extends DataSourceWithBackend<Query> {
 
   // Used in explore mode
   interpolateVariablesInQueries(queries: Query[], scopedVars: ScopedVars): Query[] {
-    return queries.map((q) => ({
-      ...q,
-      query: this.templateSrv.replace(q.query, scopedVars),
-    }));
+    return queries.map((q) => this.applyTemplateVariables(q, scopedVars));
   }
 }
