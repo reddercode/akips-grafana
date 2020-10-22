@@ -23,11 +23,10 @@ jobs:
         run: |
           PLUGIN_ID="$(cat ./dist/plugin.json|jq '.id'| sed s/\"//g)"
           PLUGIN_VERSION="$(cat ./dist/plugin.json|jq '.info.version'| sed s/\"//g)"
-          mkdir -p tmp/${PLUGIN_ID}
-          cp -a dist/ tmp/${PLUGIN_ID}
+          mkdir -p ./tmp/${PLUGIN_ID}
+          cp -a ./dist/* ./tmp/${PLUGIN_ID}
           mkdir packages
-          cd tmp && zip -r ../packages/"${PLUGIN_ID}-${PLUGIN_VERSION}.zip" .
-          rm -r tmp
+          cd ./tmp && zip -r ../packages/"${PLUGIN_ID}-${PLUGIN_VERSION}.zip" .
       - uses: actions/upload-artifact@v2
         if: success()
         with:
